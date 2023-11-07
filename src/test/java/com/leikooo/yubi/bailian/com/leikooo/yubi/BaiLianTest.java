@@ -21,9 +21,9 @@ public class BaiLianTest {
 
     @Test
      void test() {
-        String accessKeyId = "LTAI5tB5iDTJhXBph8ewKcXb";
-        String accessKeySecret = "asw0hAgmnd4Wq6tS2KMviOOYCaDFZG";
-        String agentKey = "89e2b80853ac403f9462970928477249_p_efm";
+        String accessKeyId = "**";
+        String accessKeySecret = "**";
+        String agentKey = "**";
 
         AccessTokenClient accessTokenClient = new AccessTokenClient(accessKeyId, accessKeySecret, agentKey);
         String token = accessTokenClient.getToken();
