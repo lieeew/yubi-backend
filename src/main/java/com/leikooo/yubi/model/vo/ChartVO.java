@@ -1,25 +1,27 @@
-package generator.domain;
+package com.leikooo.yubi.model.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
- * 图表信息表
- * @TableName chart
+ * 用户视图（脱敏）
+ *
+ * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+ * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
-@TableName(value ="chart")
-@Data
-public class Chart implements Serializable {
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChartVO implements Serializable {
+
     /**
      * id
      */
-    @TableId(type = IdType.ASSIGN_ID)
-    private Long id;
+    private long id;
 
     /**
      * 分析目标
@@ -61,11 +63,5 @@ public class Chart implements Serializable {
      */
     private Date updateTime;
 
-    /**
-     * 是否删除
-     */
-    private Integer isDelete;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4377216422203918656L;
 }

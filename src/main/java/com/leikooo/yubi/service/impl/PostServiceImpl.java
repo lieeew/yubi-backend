@@ -16,6 +16,7 @@ import com.leikooo.yubi.model.dto.post.PostQueryRequest;
 import com.leikooo.yubi.model.entity.Post;
 import com.leikooo.yubi.model.entity.PostFavour;
 import com.leikooo.yubi.model.entity.PostThumb;
+import com.leikooo.yubi.model.entity.User;
 import com.leikooo.yubi.model.vo.PostVO;
 import com.leikooo.yubi.model.vo.UserVO;
 import com.leikooo.yubi.service.PostService;

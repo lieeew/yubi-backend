@@ -10,13 +10,8 @@ import com.leikooo.yubi.config.WxOpenConfig;
 import com.leikooo.yubi.constant.UserConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
-import com.leikooo.yubi.model.dto.user.UserAddRequest;
-import com.leikooo.yubi.model.dto.user.UserLoginRequest;
-import com.leikooo.yubi.model.dto.user.UserQueryRequest;
-import com.leikooo.yubi.model.dto.user.UserRegisterRequest;
-import com.leikooo.yubi.model.dto.user.UserUpdateMyRequest;
-import com.leikooo.yubi.model.dto.user.UserUpdateRequest;
 import com.leikooo.yubi.model.entity.User;
+import com.leikooo.yubi.model.user.*;
 import com.leikooo.yubi.model.vo.LoginUserVO;
 import com.leikooo.yubi.model.vo.UserVO;
 import com.leikooo.yubi.service.UserService;
@@ -274,9 +269,7 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User loginUser = userService.getLoginUser(request);
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateMyRequest, user);
-        user.setId(loginUser.getId());
+        User user = new User(loginUser.getId(), userUpdateMyRequest.getUserName(), userUpdateMyRequest.getUserAvatar());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

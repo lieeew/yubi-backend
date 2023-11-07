@@ -1,6 +1,6 @@
 package com.leikooo.yubi.mapper;
 
-import generator.domain.User;
+import com.leikooo.yubi.model.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

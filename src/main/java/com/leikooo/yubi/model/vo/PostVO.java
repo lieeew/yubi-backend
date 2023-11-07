@@ -4,9 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leikooo.yubi.model.entity.Post;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.Data;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -90,13 +94,7 @@ public class PostVO implements Serializable {
         if (postVO == null) {
             return null;
         }
-        Post post = new Post();
-        BeanUtils.copyProperties(postVO, post);
-        List<String> tagList = postVO.getTagList();
-        if (tagList != null) {
-            post.setTags(GSON.toJson(tagList));
-        }
-        return post;
+        return new Post(postVO.getId(), postVO.getTitle(), postVO.getContent(), GSON.toJson(Optional.ofNullable(postVO.getTagList()).orElse(Collections.emptyList())), postVO.getThumbNum(), postVO.getFavourNum(), postVO.getUserId(), postVO.getCreateTime(), postVO.getUpdateTime(), 0);
     }
 
     /**

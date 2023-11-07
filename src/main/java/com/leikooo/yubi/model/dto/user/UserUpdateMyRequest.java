@@ -1,7 +1,8 @@
 package com.leikooo.yubi.model.dto.user;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 用户更新个人信息请求

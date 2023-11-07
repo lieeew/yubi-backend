@@ -49,4 +49,9 @@ public class PostThumb implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    public PostThumb(Long postId, Long userId) {
+        this.postId = postId;
+        this.userId = userId;
+    }
 }

@@ -66,20 +66,5 @@ public class AuthInterceptor {
         // 通过权限校验，放行
         return joinPoint.proceed();
     }
-
-    @Before("@annotation(authCheck)")
-    public Object doInterceptor2(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
-        // 权限
-        String mustRole = authCheck.mustRole();
-        RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
-        HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-        User loginUser = userService.getLoginUser(request);
-        if (StringUtils.isBlank(mustRole)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        String userRole = loginUser.getUserRole();
-
-        return joinPoint.proceed();
-    }
 }
 

@@ -13,7 +13,9 @@ import com.leikooo.yubi.model.entity.PostFavour;
 import com.leikooo.yubi.model.entity.User;
 import com.leikooo.yubi.service.PostFavourService;
 import com.leikooo.yubi.service.PostService;
+
 import javax.annotation.Resource;
+
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,9 +75,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int doPostFavourInner(long userId, long postId) {
-        PostFavour postFavour = new PostFavour();
-        postFavour.setUserId(userId);
-        postFavour.setPostId(postId);
+        PostFavour postFavour = new PostFavour(userId, postId);
         QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>(postFavour);
         PostFavour oldPostFavour = this.getOne(postFavourQueryWrapper);
         boolean result;
@@ -84,28 +84,20 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
             result = this.remove(postFavourQueryWrapper);
             if (result) {
                 // 帖子收藏数 - 1
-                result = postService.update()
-                        .eq("id", postId)
-                        .gt("favourNum", 0)
-                        .setSql("favourNum = favourNum - 1")
-                        .update();
+                result = postService.update().eq("id", postId).gt("favourNum", 0).setSql("favourNum = favourNum - 1").update();
                 return result ? -1 : 0;
             } else {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
+        }
+        // 未帖子收藏
+        result = this.save(postFavour);
+        if (result) {
+            // 帖子收藏数 + 1
+            result = postService.update().eq("id", postId).setSql("favourNum = favourNum + 1").update();
+            return result ? 1 : 0;
         } else {
-            // 未帖子收藏
-            result = this.save(postFavour);
-            if (result) {
-                // 帖子收藏数 + 1
-                result = postService.update()
-                        .eq("id", postId)
-                        .setSql("favourNum = favourNum + 1")
-                        .update();
-                return result ? 1 : 0;
-            } else {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-            }
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
     }
 

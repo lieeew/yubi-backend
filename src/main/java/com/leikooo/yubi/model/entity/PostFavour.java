@@ -49,4 +49,9 @@ public class PostFavour implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    public PostFavour(Long postId, Long userId) {
+        this.postId = postId;
+        this.userId = userId;
+    }
 }

@@ -1,7 +1,7 @@
 package com.leikooo.yubi.mapper;
 
-import generator.domain.Chart;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.leikooo.yubi.model.entity.Chart;
 
 /**
 * @author liang

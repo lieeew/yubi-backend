@@ -109,12 +109,8 @@ public class PostController {
         if (postUpdateRequest == null || postUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        BeanUtils.copyProperties(postUpdateRequest, post);
         List<String> tags = postUpdateRequest.getTags();
-        if (tags != null) {
-            post.setTags(GSON.toJson(tags));
-        }
-        Post post = new Post(postUpdateRequest.getId(), );
+        Post post = new Post(postUpdateRequest.getId(), postUpdateRequest.getTitle(), postUpdateRequest.getContent(), GSON.toJson(Optional.ofNullable(tags).orElse(Collections.emptyList())));
         // 参数校验
         postService.validPost(post, false);
         long id = postUpdateRequest.getId();

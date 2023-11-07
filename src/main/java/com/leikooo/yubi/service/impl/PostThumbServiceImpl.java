@@ -62,9 +62,7 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int doPostThumbInner(long userId, long postId) {
-        PostThumb postThumb = new PostThumb();
-        postThumb.setUserId(userId);
-        postThumb.setPostId(postId);
+        PostThumb postThumb = new PostThumb(postId, userId);
         QueryWrapper<PostThumb> thumbQueryWrapper = new QueryWrapper<>(postThumb);
         PostThumb oldPostThumb = this.getOne(thumbQueryWrapper);
         boolean result;

@@ -4,8 +4,12 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.leikooo.yubi.model.entity.Post;
 import java.io.Serializable;
+import java.nio.file.OpenOption;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +17,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+
+import javax.swing.text.html.Option;
 
 /**
  * 帖子 ES 包装类
@@ -114,12 +120,7 @@ public class PostEsDTO implements Serializable {
         if (postEsDTO == null) {
             return null;
         }
-        Post post = new Post();
-        BeanUtils.copyProperties(postEsDTO, post);
         List<String> tagList = postEsDTO.getTags();
-        if (CollectionUtils.isNotEmpty(tagList)) {
-            post.setTags(GSON.toJson(tagList));
-        }
-        return post;
+        return new Post(postEsDTO.getId(), postEsDTO.getTitle(), GSON.toJson(Optional.ofNullable(tagList).orElse(Collections.emptyList())), postEsDTO.getContent(), postEsDTO.getThumbNum(), postEsDTO.getFavourNum(), postEsDTO.getUserId(), postEsDTO.getCreateTime(), postEsDTO.getUpdateTime(), postEsDTO.getIsDelete());
     }
 }
