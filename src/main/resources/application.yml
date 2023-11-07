@@ -92,3 +92,7 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+bailian:
+  agentKey: ${bailian.agentKey}
+  accessKeySecret: ${bailian.accessKeySecret}
+  accessKeyId: ${bailian.accessKeyId}

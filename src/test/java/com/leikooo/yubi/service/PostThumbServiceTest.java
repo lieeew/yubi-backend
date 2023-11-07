@@ -24,7 +24,7 @@ class PostThumbServiceTest {
 
     @BeforeAll
     static void setUp() {
-        loginUser.setId(1L);
+        // loginUser.setId(1L);
     }
 
     @Test
