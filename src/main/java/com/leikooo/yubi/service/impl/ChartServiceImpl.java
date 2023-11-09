@@ -5,29 +5,38 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.exception.ThrowUtils;
+import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
 import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
+import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
+import com.leikooo.yubi.utils.ExcelUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-* @author liang
-* @description 针对表【chart(图表信息表)】的数据库操作Service实现
-* @createDate 2023-11-07 09:32:54
-*/
+ * @author liang
+ * @description 针对表【chart(图表信息表)】的数据库操作Service实现
+ * @createDate 2023-11-07 09:32:54
+ */
 @Service
 public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
-    implements ChartService{
+        implements ChartService {
 
+    @Resource
+    private AIManager aiManager;
 
     @Override
     public List<ChartVO> getChartVO(final List<Chart> charts) {
@@ -73,6 +82,26 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         chartVOPage.setRecords(chartVO);
         return chartVOPage;
     }
+
+    @Override
+    public String getChart(final MultipartFile multipartFile,
+                           final ChartGenController chartGenController) {
+        ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
+        final String goal = chartGenController.getGoal();
+        final String chartType = chartGenController.getChartType();
+        // 分析 xlsx 文件
+        String cvsData = ExcelUtils.getExcelFileName(multipartFile);
+        // 发送给 AI 分析数据
+        String promote = AIManager.PRECONDITION + "分析需求 " + goal + " 原始数据如下: " + cvsData + "生成图标的类型是: " + chartType;
+        String resultData = aiManager.sendMesToAI(promote);
+        String genChart = resultData.split("【【【【【")[1].trim();
+        String genResult = resultData.split("【【【【【")[2].trim();
+        Chart chart = new Chart(goal, cvsData, chartType, genChart, genResult, chartGenController.getLoginUserId());
+        boolean saveResult = this.save(chart);
+        ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
+        return resultData;
+    }
+
 }
 
 

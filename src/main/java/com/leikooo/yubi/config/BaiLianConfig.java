@@ -2,7 +2,6 @@ package com.leikooo.yubi.config;
 
 import com.aliyun.broadscope.bailian.sdk.AccessTokenClient;
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +20,6 @@ public class BaiLianConfig {
     private AccessTokenClient accessTokenClient;
     @Bean
     public AccessTokenClient accessTokenClient() {
-        if (accessTokenClient == null) {
-            return new AccessTokenClient(accessKeyId, accessKeySecret, agentKey);
-        }
-        return accessTokenClient;
+        return new AccessTokenClient(accessKeyId, accessKeySecret, agentKey);
     }
 }

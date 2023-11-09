@@ -3,6 +3,7 @@ package com.leikooo.yubi.model.dto.chart;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.io.Serializable;
 
 /**
@@ -12,19 +13,15 @@ import java.io.Serializable;
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChartAddRequest implements Serializable {
+public class ChartGenRequest implements Serializable {
 
     /**
      * 分析目标
      */
     private String goal;
-
-    /**
-     * 图表数据
-     */
-    private String chartData;
 
     /**
      * 图表类型

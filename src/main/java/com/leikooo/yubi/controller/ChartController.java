@@ -1,5 +1,7 @@
 package com.leikooo.yubi.controller;
 
+import cn.hutool.core.io.FileUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.leikooo.yubi.annotation.AuthCheck;
 import com.leikooo.yubi.common.BaseResponse;
@@ -9,18 +11,26 @@ import com.leikooo.yubi.common.ResultUtils;
 import com.leikooo.yubi.constant.UserConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
-import com.leikooo.yubi.model.dto.chart.ChartAddRequest;
+import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
 import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
 import com.leikooo.yubi.model.dto.chart.ChartUpdateRequest;
+import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.entity.Chart;
-import com.leikooo.yubi.model.enums.UserRoleEnum;
+import com.leikooo.yubi.model.entity.User;
+import com.leikooo.yubi.model.enums.FileUploadBizEnum;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
+import com.leikooo.yubi.service.UserService;
+import com.leikooo.yubi.utils.ExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import sun.security.action.GetLongAction;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 /**
  * 用户接口
@@ -36,6 +46,8 @@ public class ChartController {
     @Resource
     private ChartService chartService;
 
+    @Resource
+    private UserService userService;
     /**
      * 创建图表
      *
@@ -45,11 +57,12 @@ public class ChartController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
-    public BaseResponse<Long> addChart(@RequestBody ChartAddRequest chartAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addChart(@RequestBody ChartGenRequest chartAddRequest, HttpServletRequest request) {
         if (chartAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Chart chart = new Chart();
+        // todo 这里没有 setter 方法好像不行的
         BeanUtils.copyProperties(chartAddRequest, chart);
         boolean result = chartService.save(chart);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -104,11 +117,39 @@ public class ChartController {
     @PostMapping("/list/page/vo")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
-        if (chartQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
         Page<ChartVO> chartVOList = chartService.getChartVOList(chartQueryRequest);
         return ResultUtils.success(chartVOList);
     }
 
+    @PostMapping("/gen")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<String> genChart(@RequestPart("file") MultipartFile multipartFile,
+                                         final ChartGenRequest chartGenRequest,
+                                         HttpServletRequest request) {
+        validFile(multipartFile);
+        User loginUser = userService.getLoginUser(request);
+        ChartGenController chartGenController = new ChartGenController(chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
+        String cvsData = chartService.getChart(multipartFile, chartGenController);
+        return ResultUtils.success(cvsData);
+    }
+
+    /**
+     * 校验文件
+     *
+     * @param multipartFile 文件类型
+     */
+    private void validFile(MultipartFile multipartFile) {
+        // 文件大小
+        final long fileSize = multipartFile.getSize();
+        // 文件后缀
+        String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
+        final long ONE_MAX = 1024 * 1024 * 10L;
+        if (fileSize > ONE_MAX) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 10M");
+        }
+        if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp", "xlsx").contains(fileSuffix)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
+        }
+    }
 }
