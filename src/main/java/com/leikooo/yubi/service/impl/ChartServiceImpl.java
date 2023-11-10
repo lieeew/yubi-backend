@@ -7,19 +7,16 @@ import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
-import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
+import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.utils.ExcelUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +52,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     }
 
     @Override
-    public Page<ChartVO> getChartVOList(final ChartQueryRequest chartQueryRequest) {
+    public Page<ChartVO> getChartVOList(final ChartQueryController chartQueryRequest) {
         if (chartQueryRequest == null) {
             return new Page<>();
         }
@@ -63,8 +60,8 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         final long size = chartQueryRequest.getPageSize();
         final Long id = chartQueryRequest.getId();
         final String goal = chartQueryRequest.getGoal();
-        final String chartType = chartQueryRequest.getChartType();
         final Long userId = chartQueryRequest.getUserId();
+        final String chartType = chartQueryRequest.getChartType();
         final Date createTime = chartQueryRequest.getCreateTime();
         final Date updateTime = chartQueryRequest.getUpdateTime();
         QueryWrapper<Chart> queryWrapper = new QueryWrapper<>();
@@ -98,10 +95,30 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         String genResult = resultData.split("【【【【【")[2].trim();
         Chart chart = new Chart(goal, cvsData, chartType, genChart, genResult, chartGenController.getLoginUserId());
         boolean saveResult = this.save(chart);
+        Long id = chart.getId();
+
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
         return resultData;
     }
 
+    @Override
+    public Page<Chart> getMyChartList(final ChartQueryController chartQueryController) {
+        ThrowUtils.throwIf(chartQueryController == null, ErrorCode.PARAMS_ERROR);
+        QueryWrapper<Chart> queryWrapper = new QueryWrapper<>();
+        final String goal = chartQueryController.getGoal();
+        queryWrapper.eq(StringUtils.isNotBlank(goal), "goal", goal);
+        final String chartType = chartQueryController.getChartType();
+        queryWrapper.like(StringUtils.isNotBlank(chartType), "chartType", "%" + chartType + "%");
+        final Long userId = chartQueryController.getUserId();
+        queryWrapper.eq(userId != null && userId > 0, "userId", userId);
+        final Date createTime = chartQueryController.getCreateTime();
+        final Date updateTime = chartQueryController.getUpdateTime();
+        queryWrapper.le(createTime != null, "creatTime", createTime);
+        queryWrapper.le(updateTime != null, "creatTime", createTime);
+        Page<Chart> pageData = this.page(new Page<>(chartQueryController.getCurrent(), chartQueryController.getPageSize()), queryWrapper);
+        ThrowUtils.throwIf(pageData == null, ErrorCode.SYSTEM_ERROR);
+        return pageData;
+    }
 }
 
 

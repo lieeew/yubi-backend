@@ -1,10 +1,13 @@
-package com.leikooo.yubi.model.dto.chart;
+package com.leikooo.yubi.model.dto.controller;
 
 import com.leikooo.yubi.common.PageRequest;
+import com.leikooo.yubi.exception.ThrowUtils;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,11 +17,11 @@ import java.util.Date;
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
-@EqualsAndHashCode(callSuper = true)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChartQueryRequest extends PageRequest implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class ChartQueryController extends PageRequest implements Serializable {
     /**
      * id
      */
@@ -34,6 +37,10 @@ public class ChartQueryRequest extends PageRequest implements Serializable {
      */
     private String chartType;
 
+    /**
+     * 创建用户 id
+     */
+    private Long userId;
 
     /**
      * 创建时间
@@ -45,5 +52,13 @@ public class ChartQueryRequest extends PageRequest implements Serializable {
      */
     private Date updateTime;
 
-    private static final long serialVersionUID = -4138919418189603203L;
+    private static final long serialVersionUID = -3389509881984782940L;
+
+    public ChartQueryController(String goal, String chartType, Long userId, Date createTime, Date updateTime) {
+        this.goal = goal;
+        this.chartType = chartType;
+        this.userId = userId;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
 }

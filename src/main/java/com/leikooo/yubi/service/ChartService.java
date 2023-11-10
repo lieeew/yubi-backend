@@ -2,9 +2,8 @@ package com.leikooo.yubi.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
-import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
+import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.vo.ChartVO;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,8 +38,10 @@ public interface ChartService extends IService<Chart> {
      * @param chartQueryRequest
      * @return
      */
-    Page<ChartVO> getChartVOList(final ChartQueryRequest chartQueryRequest);
+    Page<ChartVO> getChartVOList(final ChartQueryController chartQueryRequest);
 
 
     String getChart(final MultipartFile multipartFile, final ChartGenController chartGenController);
+
+    Page<Chart> getMyChartList(ChartQueryController chartQueryController);
 }

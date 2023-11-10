@@ -17,6 +17,7 @@ import lombok.*;
  */
 @TableName(value = "post")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Post implements Serializable {

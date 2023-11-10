@@ -11,10 +11,12 @@ import java.util.Date;
 
 /**
  * 用户
+ * @author leikooo
  * @TableName user
  */
 @TableName(value ="user")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {

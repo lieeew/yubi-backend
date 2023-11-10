@@ -10,7 +10,7 @@ import com.leikooo.yubi.model.entity.Chart;
 * @Entity generator.domain.Chart
 */
 public interface ChartMapper extends BaseMapper<Chart> {
-
+    void createTable(String tableName, String dataName, String dataValue);
 }
 
 

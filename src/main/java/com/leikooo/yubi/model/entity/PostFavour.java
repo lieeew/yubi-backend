@@ -17,6 +17,7 @@ import lombok.*;
  **/
 @TableName(value = "post_favour")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostFavour implements Serializable {

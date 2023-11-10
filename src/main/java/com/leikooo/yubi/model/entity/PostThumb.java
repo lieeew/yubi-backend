@@ -19,6 +19,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 public class PostThumb implements Serializable {
 
     /**

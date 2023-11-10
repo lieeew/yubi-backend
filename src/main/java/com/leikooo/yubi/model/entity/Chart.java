@@ -17,6 +17,7 @@ import java.util.Date;
  */
 @TableName(value ="chart")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Chart implements Serializable {

@@ -1,7 +1,6 @@
 package com.leikooo.yubi.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.leikooo.yubi.annotation.AuthCheck;
 import com.leikooo.yubi.common.BaseResponse;
@@ -15,22 +14,20 @@ import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
 import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
 import com.leikooo.yubi.model.dto.chart.ChartUpdateRequest;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
+import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.entity.User;
-import com.leikooo.yubi.model.enums.FileUploadBizEnum;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
-import com.leikooo.yubi.utils.ExcelUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.security.action.GetLongAction;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 用户接口
@@ -118,7 +115,9 @@ public class ChartController {
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
-        Page<ChartVO> chartVOList = chartService.getChartVOList(chartQueryRequest);
+        User loginUser = userService.getLoginUser(request);
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), loginUser.getId(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        Page<ChartVO> chartVOList = chartService.getChartVOList(chartQueryController);
         return ResultUtils.success(chartVOList);
     }
 
@@ -134,6 +133,16 @@ public class ChartController {
         return ResultUtils.success(cvsData);
     }
 
+    @PostMapping("/my/list/page")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<Page<Chart>> listMyChartByPage(@RequestBody final ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        Long userId = loginUser.getId();
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), userId, chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        Page<Chart> myChartList = chartService.getMyChartList(chartQueryController);
+        return ResultUtils.success(myChartList);
+    }
     /**
      * 校验文件
      *
@@ -148,7 +157,7 @@ public class ChartController {
         if (fileSize > ONE_MAX) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 10M");
         }
-        if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp", "xlsx").contains(fileSuffix)) {
+        if (!Objects.equals("xlsx", fileSuffix)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
         }
     }
