@@ -23,12 +23,16 @@
         userId,createTime,updateTime,
         isDelete
     </sql>
-
+    <!--全部自定义 SQL-->
     <update id="createTable">
-        create table test.${tableName}
-        (
-            #{dataName}  varchar(255) not null,
-            #{dataValue} varchar(255) not null
-        )
+        ${creatTableSQL}
     </update>
+    <!--插入 value-->
+    <insert id="insertValue">
+        ${insertCVSData}
+    </insert>
+    <!--查询语句-->
+    <select id="queryChartData" resultType="java.util.Map">
+        select * from ${tableName}
+    </select>
 </mapper>

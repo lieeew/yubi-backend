@@ -85,4 +85,12 @@ public class Chart implements Serializable {
         this.genResult = genResult;
         this.userId = userId;
     }
+
+    public Chart(String goal, String chartType, String genChart, String genResult, Long userId) {
+        this.goal = goal;
+        this.chartType = chartType;
+        this.genChart = genChart;
+        this.genResult = genResult;
+        this.userId = userId;
+    }
 }
