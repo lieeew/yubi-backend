@@ -10,6 +10,7 @@ import com.leikooo.yubi.common.ResultUtils;
 import com.leikooo.yubi.constant.UserConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
+import com.leikooo.yubi.manager.RedisLimiterManager;
 import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
 import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
 import com.leikooo.yubi.model.dto.chart.ChartUpdateRequest;
@@ -45,6 +46,9 @@ public class ChartController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisLimiterManager redisLimiterManager;
     /**
      * 创建图表
      *
@@ -128,6 +132,8 @@ public class ChartController {
                                          HttpServletRequest request) {
         validFile(multipartFile);
         User loginUser = userService.getLoginUser(request);
+        // 增加限流器
+        redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
         ChartGenController chartGenController = new ChartGenController(chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
         String cvsData = chartService.getChart(multipartFile, chartGenController);
         return ResultUtils.success(cvsData);

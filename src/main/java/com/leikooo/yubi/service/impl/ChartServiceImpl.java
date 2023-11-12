@@ -129,6 +129,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         queryWrapper.le(updateTime != null, "creatTime", createTime);
         Page<Chart> pageData = this.page(new Page<>(chartQueryController.getCurrent(), chartQueryController.getPageSize()), queryWrapper);
         ThrowUtils.throwIf(pageData == null, ErrorCode.SYSTEM_ERROR);
+        pageData.getRecords().forEach(chart -> chart.setChartData(this.queryChartData(chart.getId()).toString()));
         return pageData;
     }
 
@@ -174,8 +175,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
      * @return
      */
     private List<Map<String, Object>> queryChartData(final Long chartId) {
-        List<Map<String, Object>> resultData = chartMapper.queryChartData("chars_" + chartId);
-        return null;
+        return chartMapper.queryChartData("chars_" + chartId);
     }
 }
 
