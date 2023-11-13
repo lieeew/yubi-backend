@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leikooo.yubi.common.ErrorCode;
+import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.entity.Chart;
+import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.utils.ExcelUtils;
@@ -87,30 +89,28 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     }
 
     @Override
-    public String getChart(final MultipartFile multipartFile,
-                           final ChartGenController chartGenController) {
+    public BiResponse getChart(final MultipartFile multipartFile,
+                               final ChartGenController chartGenController) {
         ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
         final String goal = chartGenController.getGoal();
         final String chartType = chartGenController.getChartType();
         // 分析 xlsx 文件
         String cvsData = ExcelUtils.getExcelFileName(multipartFile);
         // 发送给 AI 分析数据
-        String promote = AIManager.PRECONDITION + "分析需求 " + goal + " 原始数据如下: " + cvsData + "生成图标的类型是: " + chartType;
-        String resultData = aiManager.sendMesToAI(promote);
-        String pattern = "【【【【【\\s*(.*?)\\s*】】】】】";
-        // 使用了 Pattern.DOTALL 选项来匹配包括换行符在内的所有字符
-        Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-        Matcher matcher = r.matcher(resultData);
-        // 获取匹配到的内容
-        String genChart = matcher.find() ? matcher.group(1) : "";
-        String genResult = resultData.split("】】】】】")[1].trim();
+        String promote = AIManager.PRECONDITION + "分析需求 " + goal + " \n原始数据如下: " + cvsData + "\n生成图标的类型是: " + chartType;
+        String resultData = aiManager.sendMesToAIUserXingHuo(promote);
+        if (resultData.split("【【【【【").length < 3) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+        }
+        String genChart = resultData.split("【【【【【")[1].trim();
+        String genResult = resultData.split("【【【【【")[2].trim();
         Chart chart = new Chart(goal, chartType, genChart, genResult, chartGenController.getLoginUserId());
         boolean saveResult = this.save(chart);
         Long charId = chart.getId();
         // 创建表、保存数据
         saveCVSData(cvsData, charId);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
-        return resultData;
+        return new BiResponse(charId, genChart, genResult);
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.entity.User;
+import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
@@ -25,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
@@ -49,26 +49,6 @@ public class ChartController {
 
     @Resource
     private RedisLimiterManager redisLimiterManager;
-    /**
-     * 创建图表
-     *
-     * @param chartAddRequest
-     * @param request
-     * @return
-     */
-    @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
-    public BaseResponse<Long> addChart(@RequestBody ChartGenRequest chartAddRequest, HttpServletRequest request) {
-        if (chartAddRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        Chart chart = new Chart();
-        // todo 这里没有 setter 方法好像不行的
-        BeanUtils.copyProperties(chartAddRequest, chart);
-        boolean result = chartService.save(chart);
-        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-        return ResultUtils.success(chart.getId());
-    }
 
     /**
      * 删除图表
@@ -127,16 +107,16 @@ public class ChartController {
 
     @PostMapping("/gen")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
-    public BaseResponse<String> genChart(@RequestPart("file") MultipartFile multipartFile,
-                                         final ChartGenRequest chartGenRequest,
-                                         HttpServletRequest request) {
+    public BaseResponse<BiResponse> genChart(@RequestPart("file") MultipartFile multipartFile,
+                                             final ChartGenRequest chartGenRequest,
+                                             HttpServletRequest request) {
         validFile(multipartFile);
         User loginUser = userService.getLoginUser(request);
         // 增加限流器
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
         ChartGenController chartGenController = new ChartGenController(chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
-        String cvsData = chartService.getChart(multipartFile, chartGenController);
-        return ResultUtils.success(cvsData);
+        BiResponse chart = chartService.getChart(multipartFile, chartGenController);
+        return ResultUtils.success(chart);
     }
 
     @PostMapping("/my/list/page")

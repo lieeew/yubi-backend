@@ -93,3 +93,9 @@ bailian:
   agentKey: ${bailian.agentKey}
   accessKeySecret: ${bailian.accessKeySecret}
   accessKeyId: ${bailian.accessKeyId}
+## 讯飞 AI 配置
+xunfei:
+  client:
+    appid: ${xunfei.appid}
+    apiSecret: ${xunfei.apiSecret}
+    apiKey: ${xunfei.apiKey}

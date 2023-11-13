@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * @author leikooo
  * @Description
  */
-@SpringBootTest
+// @SpringBootTest
 @Slf4j
 public class StringTest {
 
@@ -51,39 +51,41 @@ public class StringTest {
 
     @Test
     void test2() {
-        String s = "```javascript\n" +
+        String s = "【【【【【\n" +
+                "```javascript\n" +
                 "option = {\n" +
-                "  radar: {\n" +
-                "    name: '用户趋势',\n" +
-                "    indicator: [\n" +
-                "      { name: '用户数据', max: 1000 },\n" +
-                "      { name: '用户增量', max: 100 }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  series: [\n" +
-                "    {\n" +
-                "      name: '用户',\n" +
-                "      type: 'radar',\n" +
-                "      data: [\n" +
-                "        [200, 10],\n" +
-                "        [200, 20],\n" +
-                "        [800, 10],\n" +
-                "        [90, 30],\n" +
-                "        [800, 10],\n" +
-                "        [800, 20],\n" +
-                "        [800, 10]\n" +
-                "      ]\n" +
-                "    }\n" +
-                "  ]\n" +
-                "};```";
-        // 使用正则表达式匹配 JavaScript  内的内容
-        String pattern = "```javascript\\s*(.*?)\\s*```";
+                "    xAxis: {\n" +
+                "        type: 'category',\n" +
+                "        data: ['用户1', '用户2', '用户3', '用户4', '用户5', '用户6', '用户7']\n" +
+                "    },\n" +
+                "    yAxis: {\n" +
+                "        type: 'value'\n" +
+                "    },\n" +
+                "    series: [{\n" +
+                "        name: '用户数据',\n" +
+                "        type: 'line',\n" +
+                "        data: [200, 200, 800, 90, 800, 800, 800]\n" +
+                "    }, {\n" +
+                "        name: '用户增量',\n" +
+                "        type: 'line',\n" +
+                "        data: [10, 20, 10, 30, 10, 20, 10]\n" +
+                "    }]\n" +
+                "};\n" +
+                "```\n" +
+                "】】】】】";
+        String pattern = "```javascrip\\s*(.*?)\\s*````";
         // 使用了 Pattern.DOTALL 选项来匹配包括换行符在内的所有字符
         Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
         Matcher matcher = r.matcher(s);
-        // 获取匹配到的内容
         if (matcher.find()) {
-            s = matcher.group(1);
+            String group1 = matcher.group(0);
+            System.out.println("group1 = " + group1);
+            String group2 = matcher.group(1);
+            System.out.println("group2 = " + group2);
+            String group3 = matcher.group(2);
+            System.out.println("group3 = " + group3);
+            String group4 = matcher.group(3);
+            System.out.println("group4 = " + group4);
         }
     }
 
@@ -91,5 +93,41 @@ public class StringTest {
     void test3() {
         List<Map<String, Object>> maps = chartMapper.queryChartData("chars_1723299860338864129");
         System.out.println("maps = " + maps);
+    }
+
+    @Test
+    void test4() {
+        String s = "【【【【【\n" +
+                "```javascript\n" +
+                "option = {\n" +
+                "    xAxis: {\n" +
+                "        type: 'category',\n" +
+                "        data: ['用户1', '用户2', '用户3', '用户4', '用户5', '用户6', '用户7']\n" +
+                "    },\n" +
+                "    yAxis: {\n" +
+                "        type: 'value'\n" +
+                "    },\n" +
+                "    series: [{\n" +
+                "        name: '用户数据',\n" +
+                "        type: 'line',\n" +
+                "        data: [200, 200, 800, 90, 800, 800, 800]\n" +
+                "    }, {\n" +
+                "        name: '用户增量',\n" +
+                "        type: 'line',\n" +
+                "        data: [10, 20, 10, 30, 10, 20, 10]\n" +
+                "    }]\n" +
+                "};\n" +
+                "```\n" +
+                "】】】】】";
+        // option\\s*=\\s*\\{[\\s\\S]+?\\};
+        String pattern = "\\s*\\{[\\s\\S]+?\\};";
+        Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
+        Matcher matcher = r.matcher(s);
+        if (matcher.find()) {
+            String optionString = matcher.group(0);
+            System.out.println(optionString);
+        } else {
+            System.out.println("No match found.");
+        }
     }
 }

@@ -168,6 +168,12 @@
             <artifactId>redisson</artifactId>
             <version>3.23.3</version>
         </dependency>
+        <!--星火模型接入-->
+        <dependency>
+            <groupId>io.github.briqt</groupId>
+            <artifactId>xunfei-spark4j</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
