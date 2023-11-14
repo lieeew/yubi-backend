@@ -54,6 +54,16 @@ public class ChartVO implements Serializable {
     private Long userId;
 
     /**
+     * wait,running,succeed,failed
+     */
+    private String status;
+
+    /**
+     * 错误消息
+     */
+    private String execMessage;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -64,4 +74,6 @@ public class ChartVO implements Serializable {
     private Date updateTime;
 
     private static final long serialVersionUID = 4377216422203918656L;
+
+
 }

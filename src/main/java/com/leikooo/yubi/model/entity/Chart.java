@@ -58,6 +58,16 @@ public class Chart implements Serializable {
     private Long userId;
 
     /**
+     * wait,running,succeed,failed
+     */
+    private String status;
+
+    /**
+     * 错误消息
+     */
+    private String execMessage;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -87,10 +97,33 @@ public class Chart implements Serializable {
     }
 
     public Chart(String goal, String chartType, String genChart, String genResult, Long userId) {
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(goal, chartData, chartType, genChart, genResult) && (userId == null || userId < 0), ErrorCode.PARAMS_ERROR);
         this.goal = goal;
         this.chartType = chartType;
         this.genChart = genChart;
         this.genResult = genResult;
         this.userId = userId;
+    }
+
+    public Chart(Long id, String status, String execMessage, String genChart, String genResult) {
+        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status, execMessage, genChart, genResult), ErrorCode.PARAMS_ERROR);
+        this.id = id;
+        this.status = status;
+        this.execMessage = execMessage;
+        this.genChart = genChart;
+        this.genResult = genResult;
+    }
+    public Chart(Long id, String status, String execMessage) {
+        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status, execMessage), ErrorCode.PARAMS_ERROR);
+        this.id = id;
+        this.status = status;
+        this.execMessage = execMessage;
+    }
+
+    public Chart(String goal, String chartType, Long userId, String status) {
+        this.goal = goal;
+        this.chartType = chartType;
+        this.userId = userId;
+        this.status = status;
     }
 }

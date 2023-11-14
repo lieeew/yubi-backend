@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -139,11 +140,11 @@ public class ChartController {
         final long fileSize = multipartFile.getSize();
         // 文件后缀
         String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        final long ONE_MAX = 1024 * 1024 * 10L;
-        if (fileSize > ONE_MAX) {
+        final long TEN_MAX = 1024 * 1024 * 10L;
+        if (fileSize > TEN_MAX) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 10M");
         }
-        if (!Objects.equals("xlsx", fileSuffix)) {
+        if (!Arrays.asList("xlsx", "xls").contains(fileSuffix)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
         }
     }

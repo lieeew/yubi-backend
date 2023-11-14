@@ -44,5 +44,7 @@ public interface ChartService extends IService<Chart> {
 
     BiResponse getChart(final MultipartFile multipartFile, final ChartGenController chartGenController);
 
+    BiResponse getChartASYNC(MultipartFile multipartFile, ChartGenController chartGenController);
+
     Page<Chart> getMyChartList(ChartQueryController chartQueryController);
 }

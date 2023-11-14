@@ -1,9 +1,11 @@
 package com.leikooo.yubi.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leikooo.yubi.common.ErrorCode;
+import com.leikooo.yubi.constant.ChartConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
@@ -25,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 /**
@@ -42,13 +44,15 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     private AIManager aiManager;
     @Resource
     private ChartMapper chartMapper;
+    @Resource
+    private ThreadPoolExecutor threadPoolExecutor;
 
     @Override
     public List<ChartVO> getChartVO(final List<Chart> charts) {
         if (CollectionUtils.isEmpty(charts)) {
             return new ArrayList<>();
         }
-        return charts.stream().map(chart -> new ChartVO(chart.getId(), chart.getGoal(), chart.getChartData(), chart.getChartType(), chart.getGenChart(), chart.getGenResult(), chart.getUserId(), chart.getCreateTime(), chart.getUpdateTime())).collect(Collectors.toList());
+        return charts.stream().map(chart -> new ChartVO(chart.getId(), chart.getGoal(), chart.getChartData(), chart.getChartType(), chart.getGenChart(), chart.getGenResult(), chart.getUserId(), chart.getStatus(), chart.getExecMessage(), chart.getCreateTime(), chart.getUpdateTime())).collect(Collectors.toList());
     }
 
     @Override
@@ -56,7 +60,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         if (chart == null) {
             return null;
         }
-        return new ChartVO(chart.getId(), chart.getGoal(), chart.getChartData(), chart.getChartType(), chart.getGenChart(), chart.getGenResult(), chart.getUserId(), chart.getCreateTime(), chart.getUpdateTime());
+        return new ChartVO(chart.getId(), chart.getGoal(), chart.getChartData(), chart.getChartType(), chart.getGenChart(), chart.getGenResult(), chart.getUserId(), chart.getStatus(), chart.getExecMessage(), chart.getCreateTime(), chart.getUpdateTime());
     }
 
     @Override
@@ -112,6 +116,52 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
         return new BiResponse(charId, genChart, genResult);
     }
+    @Override
+    public BiResponse getChartASYNC(final MultipartFile multipartFile, final ChartGenController chartGenController) {
+        ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
+        final String goal = chartGenController.getGoal();
+        final String chartType = chartGenController.getChartType();
+        // 分析 xlsx 文件
+        String cvsData = ExcelUtils.getExcelFileName(multipartFile);
+        // 首先保存到数据库之中
+        Chart beforeGenChart = new Chart(chartGenController.getGoal(), chartGenController.getChartType(),chartGenController.getLoginUserId(), ChartConstant.CHART_STATUS_WAIT);
+        boolean beforeSavedResult = this.save(beforeGenChart);
+        ThrowUtils.throwIf(!beforeSavedResult, ErrorCode.SYSTEM_ERROR);
+        asyncProcessChartData(goal, chartType, cvsData, beforeGenChart);
+        Long chartId = beforeGenChart.getId();
+        Chart chart = this.getById(chartId);
+        saveCVSData(cvsData, chartId);
+        return new BiResponse(chartId, chart.getGenChart(), chart.getGenResult());
+    }
+
+    /**
+     * 并发保存任务到数据库
+     *
+     * @param goal
+     * @param chartType
+     * @param cvsData
+     * @param beforeGenChart
+     */
+    private void asyncProcessChartData(String goal, String chartType, String cvsData, Chart beforeGenChart) {
+        CompletableFuture.runAsync(() -> {
+            Long chartId = beforeGenChart.getId();
+            // 发送给 AI 分析数据
+            String promote = AIManager.PRECONDITION + "分析需求 " + goal + " \n原始数据如下: " + cvsData + "\n生成图标的类型是: " + chartType;
+            try {
+                String resultData = aiManager.sendMesToAIUserXingHuo(promote);
+                if (resultData.split("【【【【【").length < 3) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+                }
+                String genChart = resultData.split("【【【【【")[1].trim();
+                String genResult = resultData.split("【【【【【")[2].trim();
+                Chart afterGenChart = new Chart(chartId, ChartConstant.CHART_STATUS_SUCCEED, "", genChart, genResult);
+                this.updateById(afterGenChart);
+            } catch (Exception e) {
+                Chart chart = new Chart(chartId, ChartConstant.CHART_STATUS_FAILED, e.getMessage());
+                this.updateById(chart);
+            }
+        }, threadPoolExecutor);
+    }
 
     @Override
     public Page<Chart> getMyChartList(final ChartQueryController chartQueryController) {
@@ -129,7 +179,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         queryWrapper.le(updateTime != null, "creatTime", createTime);
         Page<Chart> pageData = this.page(new Page<>(chartQueryController.getCurrent(), chartQueryController.getPageSize()), queryWrapper);
         ThrowUtils.throwIf(pageData == null, ErrorCode.SYSTEM_ERROR);
-        pageData.getRecords().forEach(chart -> chart.setChartData(this.queryChartData(chart.getId()).toString()));
+        pageData.getRecords().forEach(chart -> chart.setChartData(JSONUtil.toJsonStr(this.queryChartData(chart.getId()))));
         return pageData;
     }
 
