@@ -20,13 +20,13 @@ class ChartMapperTest {
 
     @Test
     void createTable() {
-        chartMapper.createTable("CREATE TABLE chars_" + 123 +
+        chartMapper.createTable("CREATE TABLE charts_" + 123 +
                 " (" + "用户" + " VARCHAR(255) NOT NULL, " +
                 "销量" + " VARCHAR(255) NOT NULL )");
     }
 
     @Test
     void queryChartData() {
-        List<Map<String, Object>> maps = chartMapper.queryChartData("chars_1723990416652247042");
+        List<Map<String, Object>> maps = chartMapper.queryChartData(1723990416652247042L);
     }
 }

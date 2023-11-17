@@ -10,8 +10,8 @@ import io.github.briqt.spark4j.constant.SparkApiVersion;
 import io.github.briqt.spark4j.model.SparkMessage;
 import io.github.briqt.spark4j.model.SparkSyncChatResponse;
 import io.github.briqt.spark4j.model.request.SparkRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +21,7 @@ import java.util.List;
  * @Description 接入 AI 能力的类
  */
 @Component
+@Slf4j
 public class AIManager {
     @Resource
     private AccessTokenClient accessTokenClient;
@@ -66,7 +67,7 @@ public class AIManager {
      *
      * @return
      */
-    public String sendMesToAIUserXingHuo(final String content) {
+    public String sendMesToAIUseXingHuo(final String content) {
         List<SparkMessage> messages = new ArrayList<>();
         messages.add(SparkMessage.userContent(content));
         // 构造请求

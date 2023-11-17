@@ -15,12 +15,9 @@ spring:
       matching-strategy: ant_path_matcher
   # session 配置
   session:
-    # todo 取消注释开启分布式 session（须先配置 Redis）
-    # store-type: redis
-    # 30 天过期
+    store-type: redis
     timeout: 2592000
   # 数据库配置
-  # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${yubi.mysql.ip}:${yubi.mysql.port}/${yubi.mysql.db}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
@@ -31,17 +28,23 @@ spring:
     database: ${yubi.redis.database}
     host: ${yubi.redis.host}
     port: ${yubi.redis.port}
+    password: ${yubi.redis.password}
     timeout: 5000
   # Elasticsearch 配置
-#  elasticsearch:
-#    uris: http://localhost:9200
-#    username: root
-#    password: 123456
+  #  elasticsearch:
+  #    uris: http://localhost:9200
+  #    username: root
+  #    password: 123456
   # 文件上传
   servlet:
     multipart:
       # 大小限制
       max-file-size: 10MB
+  rabbitmq:
+    host: ${rabbitmq.host}
+    port: ${rabbitmq.port}
+    username: ${rabbitmq.username}
+    password: ${rabbitmq.password}
 server:
   address: 0.0.0.0
   port: 8101
@@ -99,3 +102,7 @@ xunfei:
     appid: ${xunfei.appid}
     apiSecret: ${xunfei.apiSecret}
     apiKey: ${xunfei.apiKey}
+yuapi:
+  client:
+    access-key: ${yuapi.client.access-key}
+    secret-key: ${yuapi.client.secret-key}

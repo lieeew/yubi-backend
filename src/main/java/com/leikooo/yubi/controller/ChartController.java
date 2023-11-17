@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -101,7 +102,7 @@ public class ChartController {
     public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
-        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), loginUser.getId(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), loginUser.getId(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
         Page<ChartVO> chartVOList = chartService.getChartVOList(chartQueryController);
         return ResultUtils.success(chartVOList);
     }
@@ -115,8 +116,22 @@ public class ChartController {
         User loginUser = userService.getLoginUser(request);
         // 增加限流器
         redisLimiterManager.doRateLimit("genChartByAi_" + loginUser.getId());
-        ChartGenController chartGenController = new ChartGenController(chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
+        ChartGenController chartGenController = new ChartGenController(chartGenRequest.getChartName(), chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
         BiResponse chart = chartService.getChart(multipartFile, chartGenController);
+        return ResultUtils.success(chart);
+    }
+
+    @PostMapping("/gen/async")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<BiResponse> genChartAsync(@RequestPart("file") MultipartFile multipartFile,
+                                                  final ChartGenRequest chartGenRequest,
+                                                  HttpServletRequest request) {
+        validFile(multipartFile);
+        User loginUser = userService.getLoginUser(request);
+        // 增加限流器
+        redisLimiterManager.doRateLimit("genChartByAiAsync_" + loginUser.getId());
+        ChartGenController chartGenController = new ChartGenController(chartGenRequest.getChartName(), chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
+        BiResponse chart = chartService.getChartASYNC(multipartFile, chartGenController);
         return ResultUtils.success(chart);
     }
 
@@ -126,10 +141,11 @@ public class ChartController {
         ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         Long userId = loginUser.getId();
-        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), userId, chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), userId, chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
         Page<Chart> myChartList = chartService.getMyChartList(chartQueryController);
         return ResultUtils.success(myChartList);
     }
+
     /**
      * 校验文件
      *

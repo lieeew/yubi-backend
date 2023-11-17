@@ -33,6 +33,11 @@ public class ChartQueryController extends PageRequest implements Serializable {
     private String goal;
 
     /**
+     * 图标名称
+     */
+    private String chartName;
+
+    /**
      * 图表类型
      */
     private String chartType;
@@ -54,8 +59,9 @@ public class ChartQueryController extends PageRequest implements Serializable {
 
     private static final long serialVersionUID = -3389509881984782940L;
 
-    public ChartQueryController(String goal, String chartType, Long userId, Date createTime, Date updateTime) {
+    public ChartQueryController(String chartName, String goal, String chartType, Long userId, Date createTime, Date updateTime) {
         this.goal = goal;
+        this.chartName = chartName;
         this.chartType = chartType;
         this.userId = userId;
         this.createTime = createTime;

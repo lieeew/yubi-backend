@@ -6,6 +6,7 @@
 
     <resultMap id="BaseResultMap" type="com.leikooo.yubi.model.entity.Chart">
         <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="chartName" column="chartName" jdbcType="VARCHAR"/>
         <result property="goal" column="goal" jdbcType="VARCHAR"/>
         <result property="chartData" column="chartData" jdbcType="VARCHAR"/>
         <result property="chartType" column="chartType" jdbcType="VARCHAR"/>
@@ -35,6 +36,6 @@
     </insert>
     <!--查询语句-->
     <select id="queryChartData" resultType="java.util.Map">
-        select * from ${tableName}
+        select * from charts_${tableName}
     </select>
 </mapper>

@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * @author leikooo
  * @Description
  */
-// @SpringBootTest
+@SpringBootTest
 @Slf4j
 public class StringTest {
 
@@ -91,7 +91,7 @@ public class StringTest {
 
     @Test
     void test3() {
-        List<Map<String, Object>> maps = chartMapper.queryChartData("chars_1723299860338864129");
+        List<Map<String, Object>> maps = chartMapper.queryChartData(1722610390535233537L);
         System.out.println("maps = " + maps);
     }
 

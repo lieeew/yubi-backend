@@ -28,4 +28,8 @@ public class BiResponse {
         this.genChart = genChart;
         this.genResult = genResult;
     }
+
+    public BiResponse(Long chartId) {
+        this.chartId = chartId;
+    }
 }

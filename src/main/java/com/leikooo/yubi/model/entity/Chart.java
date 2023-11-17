@@ -12,20 +12,25 @@ import java.util.Date;
 
 /**
  * 图表信息表
+ *
  * @author <a href="https://github.com/lieeew">leikooo</a>
  * @TableName chart
  */
-@TableName(value ="chart")
+@TableName(value = "chart")
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Chart implements Serializable {
     /**
      * id
      */
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
+
+    /**
+     * 图标名称
+     */
+    private String chartName;
 
     /**
      * 分析目标
@@ -86,18 +91,9 @@ public class Chart implements Serializable {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
-    public Chart(String goal, String chartData, String chartType, String genChart, String genResult, Long userId) {
+    public Chart(String chartName, String goal, String chartType, String genChart, String genResult, Long userId) {
         ThrowUtils.throwIf(StringUtils.isAnyBlank(goal, chartData, chartType, genChart, genResult) && (userId == null || userId < 0), ErrorCode.PARAMS_ERROR);
-        this.goal = goal;
-        this.chartData = chartData;
-        this.chartType = chartType;
-        this.genChart = genChart;
-        this.genResult = genResult;
-        this.userId = userId;
-    }
-
-    public Chart(String goal, String chartType, String genChart, String genResult, Long userId) {
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(goal, chartData, chartType, genChart, genResult) && (userId == null || userId < 0), ErrorCode.PARAMS_ERROR);
+        this.chartName = chartName;
         this.goal = goal;
         this.chartType = chartType;
         this.genChart = genChart;
@@ -105,16 +101,8 @@ public class Chart implements Serializable {
         this.userId = userId;
     }
 
-    public Chart(Long id, String status, String execMessage, String genChart, String genResult) {
-        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status, execMessage, genChart, genResult), ErrorCode.PARAMS_ERROR);
-        this.id = id;
-        this.status = status;
-        this.execMessage = execMessage;
-        this.genChart = genChart;
-        this.genResult = genResult;
-    }
     public Chart(Long id, String status, String execMessage) {
-        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status, execMessage), ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status), ErrorCode.PARAMS_ERROR);
         this.id = id;
         this.status = status;
         this.execMessage = execMessage;
@@ -125,5 +113,14 @@ public class Chart implements Serializable {
         this.chartType = chartType;
         this.userId = userId;
         this.status = status;
+    }
+
+    public Chart(Long id, String genChart, String genResult, String status, String execMessage) {
+        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(genChart, genResult, status), ErrorCode.PARAMS_ERROR);
+        this.id = id;
+        this.genChart = genChart;
+        this.genResult = genResult;
+        this.status = status;
+        this.execMessage = execMessage;
     }
 }

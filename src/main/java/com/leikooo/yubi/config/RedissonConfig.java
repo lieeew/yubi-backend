@@ -31,6 +31,7 @@ public class RedissonConfig {
         Config config = new Config();
         config.useReplicatedServers()
                 .setDatabase(database)
+                .setPassword(password)
                 .addNodeAddress(String.format("redis://%s:%s", host, port));
         return Redisson.create(config);
     }

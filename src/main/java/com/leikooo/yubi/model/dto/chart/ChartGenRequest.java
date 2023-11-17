@@ -24,6 +24,11 @@ public class ChartGenRequest implements Serializable {
     private String goal;
 
     /**
+     * 图标名称
+     */
+    private String chartName;
+
+    /**
      * 图表类型
      */
     private String chartType;

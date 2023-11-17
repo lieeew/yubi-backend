@@ -33,7 +33,7 @@ public interface ChartMapper extends BaseMapper<Chart> {
      * @param tableName
      * @return
      */
-    List<Map<String, Object>> queryChartData(final String tableName);
+    List<Map<String, Object>> queryChartData(final Long tableName);
 }
 
 
