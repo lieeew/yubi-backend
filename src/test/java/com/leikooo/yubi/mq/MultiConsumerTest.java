@@ -4,21 +4,36 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public class MultiConsumer {
+import javax.annotation.Resource;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
-    public static void main(String[] argv) throws Exception {
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * @author <a href="https://github.com/lieeew">leikooo</a>
+ * @Description
+ */
+@SpringBootTest
+class MultiConsumerTest {
+
+    @Resource
+    private ConnectionFactory connectionFactory;
+
+    @Test
+    void test() throws IOException, TimeoutException {
         String TASK_QUEUE_NAME = "multi_queue";
-        ConnectionFactory factory = new ConnectionFactory();
-
         for (int i = 0; i < 2; i++) {
-            final Connection connection = factory.newConnection();
+            final Connection connection = connectionFactory.newConnection();
             final Channel channel = connection.createChannel();
 
             channel.queueDeclare(TASK_QUEUE_NAME, true, false, false, null);
             System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
-            channel.basicQos(2);
+            channel.basicQos(1);
             int finalI = i;
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), "UTF-8");

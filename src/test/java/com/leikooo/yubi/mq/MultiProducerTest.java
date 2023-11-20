@@ -20,16 +20,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author <a href="https://github.com/lieeew">leikooo</a>
  * @Description
  */
-@SpringBootTest
 class MultiProducerTest {
 
-    @Resource
-    private ConnectionFactory connectionFactory;
 
     @Test
     void test() throws IOException, TimeoutException {
         String TASK_QUEUE_NAME = "multi_queue";
-        try (Connection connection = connectionFactory.newConnection();
+        ConnectionFactory factory = new ConnectionFactory();
+
+        try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(TASK_QUEUE_NAME, true, false, false, null);
             Scanner scanner = new Scanner(System.in);
