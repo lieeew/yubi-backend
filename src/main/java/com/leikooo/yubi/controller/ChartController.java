@@ -135,6 +135,21 @@ public class ChartController {
         return ResultUtils.success(chart);
     }
 
+    @PostMapping("/gen/mq")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<BiResponse> genChartMQ(@RequestPart("file") MultipartFile multipartFile,
+                                               final ChartGenRequest chartGenRequest,
+                                               HttpServletRequest request) {
+        validFile(multipartFile);
+        User loginUser = userService.getLoginUser(request);
+        // 增加限流器
+        redisLimiterManager.doRateLimit("genChartByAiMQ_" + loginUser.getId());
+        ChartGenController chartGenController = new ChartGenController(chartGenRequest.getChartName(), chartGenRequest.getGoal(), chartGenRequest.getChartType(), loginUser);
+        BiResponse chart = chartService.getChartMQ(multipartFile, chartGenController);
+        return ResultUtils.success(chart);
+    }
+
+
     @PostMapping("/my/list/page")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<Page<Chart>> listMyChartByPage(@RequestBody final ChartQueryRequest chartQueryRequest, HttpServletRequest request) {

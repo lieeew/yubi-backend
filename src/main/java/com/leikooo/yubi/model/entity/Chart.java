@@ -123,4 +123,11 @@ public class Chart implements Serializable {
         this.status = status;
         this.execMessage = execMessage;
     }
+
+    public Chart(String chartName, String goal, String chartType, Long userId) {
+        this.chartName = chartName;
+        this.goal = goal;
+        this.chartType = chartType;
+        this.userId = userId;
+    }
 }

@@ -1,12 +1,12 @@
 package com.leikooo.yubi.service.impl;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.leikooo.yubi.bizmq.BIMessageProducer;
 import com.leikooo.yubi.common.ErrorCode;
+import com.leikooo.yubi.constant.BIMQConstant;
 import com.leikooo.yubi.constant.ChartConstant;
-import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
@@ -48,6 +48,9 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     private ChartMapper chartMapper;
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
+
+    @Resource
+    private BIMessageProducer biMessageProducer;
 
     @Override
     public List<ChartVO> getChartVO(final List<Chart> charts) {
@@ -128,10 +131,33 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         ThrowUtils.throwIf(!beforeSavedResult, ErrorCode.SYSTEM_ERROR);
         asyncProcessChartData(goal, chartType, cvsData, beforeGenChart);
         Long chartId = beforeGenChart.getId();
-        Chart chart = this.getById(chartId);
         saveCVSData(cvsData, chartId);
         return new BiResponse(chartId);
     }
+
+    /**
+     * 向 RabbitMQ 发送消息
+     *
+     * @param multipartFile
+     * @param chartGenController
+     * @return
+     */
+    @Override
+    public BiResponse getChartMQ(final MultipartFile multipartFile, final ChartGenController chartGenController) {
+        ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
+        final String goal = chartGenController.getGoal();
+        final String chartType = chartGenController.getChartType();
+        // 分析 xlsx 文件
+        String cvsData = ExcelUtils.getExcelFileName(multipartFile);
+        Chart chart = new Chart(chartGenController.getChartName(), goal, chartType, chartGenController.getLoginUserId());
+        boolean saveResult = this.save(chart);
+        Long chartId = chart.getId();
+        saveCVSData(cvsData, chartId);
+        ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
+        biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
+        return new BiResponse(chartId);
+    }
+
 
     /**
      * 并发保存任务到数据库

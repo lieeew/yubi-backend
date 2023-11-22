@@ -23,13 +23,4 @@ public class RabbitMQClientConfig {
 
     private String password;
 
-    @Bean
-    public ConnectionFactory connectionFactory() {
-        ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(host);
-        factory.setUsername(username);
-        factory.setPassword(password);
-        factory.setPort(port);
-        return factory;
-    }
 }
