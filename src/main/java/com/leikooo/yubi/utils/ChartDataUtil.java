@@ -38,7 +38,7 @@ public class ChartDataUtil {
             StringBuilder result = new StringBuilder();
             String[] headers = columnHeader.get(0).split(",");
             for (int i = 0; i < headers.length; i++) {
-                Integer data = (Integer) columnData.get(headers[i]);
+                String data = (String) columnData.get(headers[i]);
                 result.append(data);
                 if (i != headers.length - 1) {
                     result.append(",");

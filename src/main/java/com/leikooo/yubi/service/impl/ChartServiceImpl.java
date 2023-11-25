@@ -7,6 +7,7 @@ import com.leikooo.yubi.bizmq.BIMessageProducer;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.constant.BIMQConstant;
 import com.leikooo.yubi.constant.ChartConstant;
+import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
@@ -22,13 +23,11 @@ import com.leikooo.yubi.utils.ExcelUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -98,6 +97,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BiResponse getChart(final MultipartFile multipartFile,
                                final ChartGenController chartGenController) {
         ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
@@ -119,6 +119,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BiResponse getChartASYNC(final MultipartFile multipartFile, final ChartGenController chartGenController) {
         ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
         final String goal = chartGenController.getGoal();
@@ -143,6 +144,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public BiResponse getChartMQ(final MultipartFile multipartFile, final ChartGenController chartGenController) {
         ThrowUtils.throwIf(chartGenController == null, ErrorCode.PARAMS_ERROR);
         final String goal = chartGenController.getGoal();
@@ -216,17 +218,35 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         StringBuilder sqlColumns = new StringBuilder();
         for (int i = 0; i < columnHeaders.length; i++) {
             ThrowUtils.throwIf(StringUtils.isAnyBlank(columnHeaders[i]), ErrorCode.PARAMS_ERROR);
-            sqlColumns.append(columnHeaders[i]).append(" INT NOT NULL");
+            sqlColumns.append("`").append(columnHeaders[i]).append("`").append(" varchar(50) NOT NULL");
             if (i != columnHeaders.length - 1) {
                 sqlColumns.append(", ");
             }
         }
         String sql = String.format("CREATE TABLE charts_%d ( %s )", chartId, sqlColumns);
         String[] columns = cvsData.split("\n");
+        // 用户 ID,用户消费,用户设置
+        //1,100,iPhone
+        //2,300,iPhone
+        //3,400,vivo
+        //4,800,xiaomi
+        //5,720,Huawei
+        //6,700,meizu
+        //7,700,iPhone
+        //8,800,iPhone
+        //9,900,meizu
         StringBuilder insertSql = new StringBuilder();
         insertSql.append("INSERT INTO charts_").append(chartId).append(" VALUES ");
         for (int i = 1; i < columns.length; i++) {
-            insertSql.append("(").append(columns[i]).append(")");
+            String[] strings = columns[i].split(",");
+            insertSql.append("(");
+            for (int j = 0; j < strings.length; j++) {
+                insertSql.append("'").append(strings[j]).append("'");
+                if (j != strings.length - 1) {
+                    insertSql.append(", ");
+                }
+            }
+            insertSql.append(")");
             if (i != columns.length - 1) {
                 insertSql.append(", ");
             }
@@ -236,6 +256,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
             chartMapper.insertValue(insertSql.toString());
         } catch (Exception e) {
             log.error("插入数据报错 " + e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR);
         }
     }
 
