@@ -1,15 +1,9 @@
-# Docker 镜像构建
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
-FROM maven:3.8.1-jdk-8-slim as builder
+FROM openjdk:8-jdk-alpine
 
-# Copy local code to the container image.
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
+WORKDIR /bi
 
-# Build a release artifact.
-RUN mvn package -DskipTests
+COPY ./target/yubi-backend-0.0.1-SNAPSHOT.jar /bi/your-application.jar
 
-# Run the web service on container startup.
-CMD ["java","-jar","/app/target/yubi-backend-0.0.1-SNAPSHOT.jar","--spring.profiles.active=prod"]
+EXPOSE 9090
+
+CMD ["java", "-jar", "your-application.jar","--spring.profiles.active=prod"]

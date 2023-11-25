@@ -23,14 +23,18 @@ import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.Redisson;
+import org.redisson.api.RList;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 用户接口
@@ -57,7 +61,6 @@ public class ChartController {
      *
      * @param deleteRequest
      * @param request
-     * @return
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
@@ -102,7 +105,7 @@ public class ChartController {
     public BaseResponse<Page<ChartVO>> listChartVOByPage(@RequestBody ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
-        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), loginUser.getId(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), loginUser.getId(), chartQueryRequest.getCurrent(), chartQueryRequest.getPageSize(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
         Page<ChartVO> chartVOList = chartService.getChartVOList(chartQueryController);
         return ResultUtils.success(chartVOList);
     }
@@ -156,7 +159,7 @@ public class ChartController {
         ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(request);
         Long userId = loginUser.getId();
-        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), userId, chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
+        ChartQueryController chartQueryController = new ChartQueryController(chartQueryRequest.getChartName(), chartQueryRequest.getGoal(), chartQueryRequest.getChartType(), userId, chartQueryRequest.getCurrent(), chartQueryRequest.getPageSize(), chartQueryRequest.getCreateTime(), chartQueryRequest.getUpdateTime());
         Page<Chart> myChartList = chartService.getMyChartList(chartQueryController);
         return ResultUtils.success(myChartList);
     }

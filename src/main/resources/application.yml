@@ -3,9 +3,8 @@ spring:
     name: application-pro
   application:
     name: yubi-backend
-  # 默认 dev 环境
   profiles:
-    active: pro
+    active: test
   # 支持 swagger3
   mvc:
     pathmatch:
@@ -44,7 +43,7 @@ spring:
     password: ${rabbitmq.password}
 server:
   address: 0.0.0.0
-  port: 8101
+  port: 8081
   servlet:
     context-path: /api
     # cookie 30 天过期
@@ -65,7 +64,6 @@ mybatis-plus:
 # 微信相关
 wx:
   # 微信公众平台
-  # todo 需替换配置
   mp:
     token: xxx
     aesKey: xxx

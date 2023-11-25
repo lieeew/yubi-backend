@@ -35,7 +35,7 @@ public class ReGenChartData {
     private ThreadPoolExecutor threadPoolExecutor;
 
     @Scheduled(cron = "0 0/5 * * * ?") // Every 5 minutes
-    public void doRecommendUser() {
+    public void doUpdateFailedChart() {
         QueryWrapper<Chart> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", ChartConstant.CHART_STATUS_FAILED);
         List<Chart> failedCharts = chartMapper.selectList(queryWrapper);

@@ -2,6 +2,7 @@ package com.leikooo.yubi.model.dto.controller;
 
 import com.leikooo.yubi.common.PageRequest;
 import com.leikooo.yubi.exception.ThrowUtils;
+import io.swagger.models.auth.In;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -48,6 +49,16 @@ public class ChartQueryController extends PageRequest implements Serializable {
     private Long userId;
 
     /**
+     * current
+     */
+    private long current;
+
+    /**
+     * pageSize
+     */
+    private long pageSize;
+
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -59,11 +70,13 @@ public class ChartQueryController extends PageRequest implements Serializable {
 
     private static final long serialVersionUID = -3389509881984782940L;
 
-    public ChartQueryController(String chartName, String goal, String chartType, Long userId, Date createTime, Date updateTime) {
+    public ChartQueryController(String chartName, String goal, String chartType, Long userId, Long current, Long pageSize, Date createTime, Date updateTime) {
         this.goal = goal;
         this.chartName = chartName;
         this.chartType = chartType;
         this.userId = userId;
+        this.current = current;
+        this.pageSize = pageSize;
         this.createTime = createTime;
         this.updateTime = updateTime;
     }

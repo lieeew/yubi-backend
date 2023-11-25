@@ -39,7 +39,6 @@ public class ChartQueryRequest extends PageRequest implements Serializable {
      */
     private String chartType;
 
-
     /**
      * 创建时间
      */
