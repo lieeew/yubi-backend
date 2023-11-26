@@ -14,6 +14,7 @@ import com.leikooo.yubi.mapper.ChartMapper;
 import com.leikooo.yubi.model.dto.chart.ChartGenResult;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
+import com.leikooo.yubi.model.dto.controller.ChartRetryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
@@ -156,6 +157,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         Long chartId = chart.getId();
         saveCVSData(cvsData, chartId);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
+        this.updateById(new Chart(chartId, ChartConstant.CHART_STATUS_WAIT, ""));
         biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
         return new BiResponse(chartId);
     }
@@ -206,6 +208,21 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         return pageData;
     }
 
+    /**
+     * 重新生成图表和结论
+     *
+     * @param chartRetryController
+     * @return
+     */
+    @Override
+    public BiResponse retryGenChart(ChartRetryController chartRetryController) {
+        ThrowUtils.throwIf(chartRetryController == null, ErrorCode.PARAMS_ERROR);
+        Long chartId = chartRetryController.getChartId();
+        this.updateById(new Chart(ChartConstant.CHART_STATUS_WAIT, "", "", "", chartId));
+        biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
+        return new BiResponse(chartId);
+    }
+
 
     /**
      * 生成建表格 SQL 并且插入 cvs 数据到数据库
@@ -225,16 +242,6 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         }
         String sql = String.format("CREATE TABLE charts_%d ( %s )", chartId, sqlColumns);
         String[] columns = cvsData.split("\n");
-        // 用户 ID,用户消费,用户设置
-        //1,100,iPhone
-        //2,300,iPhone
-        //3,400,vivo
-        //4,800,xiaomi
-        //5,720,Huawei
-        //6,700,meizu
-        //7,700,iPhone
-        //8,800,iPhone
-        //9,900,meizu
         StringBuilder insertSql = new StringBuilder();
         insertSql.append("INSERT INTO charts_").append(chartId).append(" VALUES ");
         for (int i = 1; i < columns.length; i++) {

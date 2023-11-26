@@ -13,9 +13,11 @@ import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.RedisLimiterManager;
 import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
 import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
+import com.leikooo.yubi.model.dto.chart.ChartRetryRequest;
 import com.leikooo.yubi.model.dto.chart.ChartUpdateRequest;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
+import com.leikooo.yubi.model.dto.controller.ChartRetryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.entity.User;
 import com.leikooo.yubi.model.vo.BiResponse;
@@ -23,18 +25,13 @@ import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.Redisson;
-import org.redisson.api.RList;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 用户接口
@@ -163,6 +160,17 @@ public class ChartController {
         Page<Chart> myChartList = chartService.getMyChartList(chartQueryController);
         return ResultUtils.success(myChartList);
     }
+    @PostMapping("/gen/retry")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<BiResponse> retryGenChart(@RequestBody final ChartRetryRequest chartQueryRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(chartQueryRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        ChartRetryController chartRetryController = new ChartRetryController(chartQueryRequest.getId(), loginUser);
+        BiResponse chart = chartService.retryGenChart(chartRetryController);
+        return ResultUtils.success(chart);
+    }
+
+
 
     /**
      * 校验文件

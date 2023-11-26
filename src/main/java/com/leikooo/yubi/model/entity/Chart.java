@@ -107,6 +107,14 @@ public class Chart implements Serializable {
         this.status = status;
         this.execMessage = execMessage;
     }
+    public Chart(String status, String execMessage, String genChart, String genResult, Long id) {
+        ThrowUtils.throwIf((id == null || id < 0) || StringUtils.isAnyEmpty(status), ErrorCode.PARAMS_ERROR);
+        this.id = id;
+        this.status = status;
+        this.execMessage = execMessage;
+        this.genChart = genChart;
+        this.genResult =  genResult;
+    }
 
     public Chart(String goal, String chartType, Long userId, String status) {
         this.goal = goal;

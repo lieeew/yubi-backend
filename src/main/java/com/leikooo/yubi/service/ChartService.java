@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
+import com.leikooo.yubi.model.dto.controller.ChartRetryController;
 import com.leikooo.yubi.model.entity.Chart;
 import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
@@ -50,4 +51,5 @@ public interface ChartService extends IService<Chart> {
 
     Page<Chart> getMyChartList(ChartQueryController chartQueryController);
 
+    BiResponse retryGenChart(ChartRetryController chartRetryController);
 }
