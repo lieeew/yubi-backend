@@ -55,7 +55,7 @@ public class ReGenChartData {
         try {
             chartService.updateById(new Chart(chartId, result.getGenChart(), result.getGenResult(), ChartConstant.CHART_STATUS_SUCCEED, ""));
         } catch (Exception e) {
-            chartService.updateById(new Chart(chartId, ChartConstant.CHART_STATUS_SUCCEED, e.getMessage()));
+            chartService.updateById(new Chart(chartId, ChartConstant.CHART_STATUS_FAILED, e.getMessage()));
             log.error("更新图表数据失败，chartId:{}, error:{}", chartId, e.getMessage());
         }
     }

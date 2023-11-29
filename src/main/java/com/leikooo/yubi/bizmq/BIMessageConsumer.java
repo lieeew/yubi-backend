@@ -77,7 +77,12 @@ public class BIMessageConsumer {
                 return;
             }
             channel.basicNack(deliveryTag, false, true);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            try {
+                channel.basicNack(deliveryTag, false, false);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             log.error(e.getMessage());
         }
     }

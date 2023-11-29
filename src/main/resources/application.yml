@@ -4,7 +4,7 @@ spring:
   application:
     name: yubi-backend
   profiles:
-    active: test
+    active: dev
   # 支持 swagger3
   mvc:
     pathmatch:
@@ -89,6 +89,7 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+## 阿里云百炼
 bailian:
   agentKey: ${bailian.agentKey}
   accessKeySecret: ${bailian.accessKeySecret}
