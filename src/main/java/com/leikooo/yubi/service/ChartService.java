@@ -52,4 +52,7 @@ public interface ChartService extends IService<Chart> {
     Page<Chart> getMyChartList(ChartQueryController chartQueryController);
 
     BiResponse retryGenChart(ChartRetryController chartRetryController);
+
+    boolean downloadCsvData(String chartId);
+
 }

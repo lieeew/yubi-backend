@@ -16,6 +16,7 @@ public enum ErrorCode {
     FORBIDDEN_ERROR(40300, "禁止访问"),
     SYSTEM_ERROR(50000, "系统内部异常"),
     TOO_MANY_REQUESTS_ERROR(42900, "系统内部异常"),
+    FILE_DOWNLOAD_ERROR(50002, "文件下载失败"),
     OPERATION_ERROR(50001, "操作失败");
 
     /**

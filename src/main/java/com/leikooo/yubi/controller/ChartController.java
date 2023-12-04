@@ -7,14 +7,12 @@ import com.leikooo.yubi.common.BaseResponse;
 import com.leikooo.yubi.common.DeleteRequest;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.common.ResultUtils;
+import com.leikooo.yubi.constant.ChartConstant;
 import com.leikooo.yubi.constant.UserConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.RedisLimiterManager;
-import com.leikooo.yubi.model.dto.chart.ChartGenRequest;
-import com.leikooo.yubi.model.dto.chart.ChartQueryRequest;
-import com.leikooo.yubi.model.dto.chart.ChartRetryRequest;
-import com.leikooo.yubi.model.dto.chart.ChartUpdateRequest;
+import com.leikooo.yubi.model.dto.chart.*;
 import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.dto.controller.ChartRetryController;
@@ -24,14 +22,27 @@ import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
+import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.sql.*;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 用户接口
@@ -160,6 +171,7 @@ public class ChartController {
         Page<Chart> myChartList = chartService.getMyChartList(chartQueryController);
         return ResultUtils.success(myChartList);
     }
+
     @PostMapping("/gen/retry")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<BiResponse> retryGenChart(@RequestBody final ChartRetryRequest chartQueryRequest, HttpServletRequest request) {
@@ -170,7 +182,29 @@ public class ChartController {
         return ResultUtils.success(chart);
     }
 
-
+    @GetMapping("/download/csv")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public ResponseEntity<InputStreamResource> downloadCsvData(@RequestBody ChartCsvDataRequest chartCsvDataRequest) throws IOException {
+        boolean result = chartService.downloadCsvData(chartCsvDataRequest.getChartId());
+        if (!result) {
+            throw new BusinessException(ErrorCode.FILE_DOWNLOAD_ERROR);
+        }
+        // 读取文件
+        String filePath = ChartConstant.CHART_CVS_PATH + "charts_" + chartCsvDataRequest.getChartId() + ".csv";
+        File file = new File(filePath);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        // 设置响应头
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        // 构建响应实体
+        InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .contentLength(file.length())
+                .body(inputStreamResource);
+    }
 
     /**
      * 校验文件

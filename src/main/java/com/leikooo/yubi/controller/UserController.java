@@ -6,7 +6,6 @@ import com.leikooo.yubi.common.BaseResponse;
 import com.leikooo.yubi.common.DeleteRequest;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.common.ResultUtils;
-import com.leikooo.yubi.config.WxOpenConfig;
 import com.leikooo.yubi.constant.UserConstant;
 import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
@@ -15,17 +14,14 @@ import com.leikooo.yubi.model.user.*;
 import com.leikooo.yubi.model.vo.LoginUserVO;
 import com.leikooo.yubi.model.vo.UserVO;
 import com.leikooo.yubi.service.UserService;
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户接口
@@ -40,7 +36,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
 
     /**
      * 用户注册
@@ -111,10 +106,6 @@ public class UserController {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
-
-    // endregion
-
-    // region 增删改查
 
     /**
      * 创建用户

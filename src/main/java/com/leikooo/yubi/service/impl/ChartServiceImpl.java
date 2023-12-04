@@ -21,14 +21,23 @@ import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.utils.ChartDataUtil;
 import com.leikooo.yubi.utils.ExcelUtils;
+import com.opencsv.CSVWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
-import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -51,6 +60,9 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
 
     @Resource
     private BIMessageProducer biMessageProducer;
+
+    @Resource
+    private Connection connection;
 
     @Override
     public List<ChartVO> getChartVO(final List<Chart> charts) {
@@ -221,6 +233,24 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         this.updateById(new Chart(ChartConstant.CHART_STATUS_WAIT, "", "", "", chartId));
         biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
         return new BiResponse(chartId);
+    }
+
+    @Override
+    public boolean downloadCsvData(String chartId) {
+        String chartName = String.format("charts_%s", chartId);
+        try (PreparedStatement pst = connection.prepareStatement("SELECT * FROM " + chartName);
+             ResultSet rs = pst.executeQuery()) {
+            try (CSVWriter writer = new CSVWriter(Files.newBufferedWriter(Path.of(ChartConstant.CHART_CVS_PATH + chartName + ".csv"),
+                    StandardCharsets.UTF_8), CSVWriter.DEFAULT_SEPARATOR,
+                    CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER,
+                    CSVWriter.DEFAULT_LINE_END)) {
+                writer.writeAll(rs, true);
+            }
+        } catch (Exception ex) {
+            log.error(ex.getMessage());
+            return false;
+        }
+        return true;
     }
 
 

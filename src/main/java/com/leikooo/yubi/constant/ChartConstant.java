@@ -13,4 +13,8 @@ public interface ChartConstant {
     String CHART_STATUS_WAIT = "wait";
 
     String CHART_STATUS_RUNNING = "running";
+    /**
+     * csv 路径
+     */
+    String CHART_CVS_PATH = "src/main/resources/chartCSV/";
 }

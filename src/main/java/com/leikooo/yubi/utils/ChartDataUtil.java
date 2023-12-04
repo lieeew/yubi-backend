@@ -51,7 +51,7 @@ public class ChartDataUtil {
         }).collect(Collectors.toList());
         // 将 columnDataList 中的数据添加到 stringJoiner
         StringJoiner stringJoiner = new StringJoiner("");
-        stringJoiner.add(columnHeader.get(0));
+        stringJoiner.add(columnHeader.get(0)).add("\n");
         columnDataList.forEach(stringJoiner::add);
         return stringJoiner.toString();
     }
