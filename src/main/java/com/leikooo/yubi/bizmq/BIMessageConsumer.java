@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author <a href="https://github.com/lieeew">leikooo</a>
  */
-@Component
 @Slf4j
+@Component
 public class BIMessageConsumer {
 
     @Resource
@@ -78,12 +78,12 @@ public class BIMessageConsumer {
             }
             channel.basicNack(deliveryTag, false, true);
         } catch (Exception e) {
+            log.error(e.getMessage());
             try {
                 channel.basicNack(deliveryTag, false, false);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-            log.error(e.getMessage());
         }
     }
 
