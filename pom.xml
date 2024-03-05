@@ -176,7 +176,7 @@
         <dependency>
             <groupId>io.github.briqt</groupId>
             <artifactId>xunfei-spark4j</artifactId>
-            <version>1.0.1</version>
+            <version>1.2.0</version>
         </dependency>
         <!--鱼聪明 AI 能力-->
         <dependency>

@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class AIManagerTest {
-    public static final String appid = "";
-    public static final String apiSecret = "";
-    public static final String apiKey = "";
+    public static final String appid = "5bfa843f";
+    public static final String apiSecret = "NzMyODc0MTU2MjgwOTQyYTNkODNkODlj";
+    public static final String apiKey = "e10ca63b2580570f5abc4b4b5aaeb936";
 
     @Test
     void test() {
@@ -64,8 +64,7 @@ public class AIManagerTest {
                 .maxTokens(2048)
                 // 核采样阈值。用于决定结果随机性,取值越高随机性越强即相同的问题得到的不同答案的可能性越高 非必传,取值为[0,1],默认为0.5
                 .temperature(0.2)
-                // 指定请求版本，默认使用最新2.0版本
-                .apiVersion(SparkApiVersion.V2_0)
+                .apiVersion(SparkApiVersion.V3_5)
                 .build();
         // 同步调用
         SparkSyncChatResponse chatResponse = sparkClient.chatSync(sparkRequest);
@@ -77,17 +76,5 @@ public class AIManagerTest {
         System.out.println("genChart0 = " + genChart0);
         System.out.println("genResult = " + genResult);
         System.out.println("genChart = " + genChart);
-        // String pattern = "\\s*\\{[\\s\\S]+?\\}";
-        // // 使用了 Pattern.DOTALL 选项来匹配包括换行符在内的所有字符
-        // Pattern r = Pattern.compile(pattern, Pattern.DOTALL);
-        // Matcher matcher = r.matcher(content);
-        // // 获取匹配到的内容
-        // if (matcher.find()) {
-        //     matcher.group(0);
-        //     matcher.group(1);
-        //     matcher.group(2);
-        // }
-        // String genChart = matcher.find() ? matcher.group(0) : "";
-
     }
 }
