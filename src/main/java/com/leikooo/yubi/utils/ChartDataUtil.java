@@ -68,9 +68,9 @@ public class ChartDataUtil {
         String promote = AIManager.PRECONDITION + "分析需求 " + goal + " \n原始数据如下: " + cvsData + "\n生成图标的类型是: " + chartType;
         String resultData = aiManager.sendMesToAIUseXingHuo(promote);
         log.info("AI 生成的信息: {}", resultData);
-        ThrowUtils.throwIf(resultData.split("【【【【【").length < 3, ErrorCode.SYSTEM_ERROR);
-        String genChart = resultData.split("【【【【【")[1].trim();
-        String genResult = resultData.split("【【【【【")[2].trim();
+        ThrowUtils.throwIf(resultData.split("'【【【【【'").length < 3, ErrorCode.SYSTEM_ERROR);
+        String genChart = resultData.split("'【【【【【'")[1].trim();
+        String genResult = resultData.split("'【【【【【'")[2].trim();
         return new ChartGenResult(genChart, genResult);
     }
 }
