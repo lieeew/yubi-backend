@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author <a href="https://github.com/lieeew">leikooo</a>
- * @Description 把查询到的数据转换成字符串
+ * @description 把查询到的数据转换成字符串
  * <p>
  * 用户id, 用户数据, 用户增量
  * 1, 200, 10

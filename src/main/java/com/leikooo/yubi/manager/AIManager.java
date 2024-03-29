@@ -43,9 +43,9 @@ public class AIManager {
             "'【【【【【'\n" +
             "{明确的数据分析结论、越详细越好，不要生成多余的注释} \n"
             + "下面是一个具体的例子的模板："
-            + "‘【【【【【’\n"
-            + "{\"name\": }"
-            + "‘【【【【【’\n" +
+            + "'【【【【【'\n"
+            + "{\"xxx\": }"
+            + "'【【【【【'\n" +
             "结论：";
 
     /**
@@ -84,7 +84,7 @@ public class AIManager {
                 // 核采样阈值。用于决定结果随机性,取值越高随机性越强即相同的问题得到的不同答案的可能性越高 非必传,取值为[0,1],默认为0.5
                 .temperature(0.2)
                 // 指定请求版本，默认使用最新2.0版本
-                .apiVersion(SparkApiVersion.V2_0)
+                .apiVersion(SparkApiVersion.V3_5)
                 .build();
         // 同步调用
         SparkSyncChatResponse chatResponse = sparkClient.chatSync(sparkRequest);

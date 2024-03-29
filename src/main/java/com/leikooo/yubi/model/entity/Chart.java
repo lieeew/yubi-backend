@@ -17,9 +17,11 @@ import java.util.Date;
  * @TableName chart
  */
 @TableName(value = "chart")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
 public class Chart implements Serializable {
     /**
      * id
@@ -137,5 +139,14 @@ public class Chart implements Serializable {
         this.goal = goal;
         this.chartType = chartType;
         this.userId = userId;
+    }
+
+    public static Chart successChart(String genChart, String genResult, String chartName, Long userId) {
+        return Chart.builder()
+                .userId(userId)
+                .chartName(chartName)
+                .genChart(genChart)
+                .genResult(genResult)
+                .build();
     }
 }

@@ -24,9 +24,11 @@ import com.leikooo.yubi.utils.ExcelUtils;
 import com.opencsv.CSVWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,10 +36,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -120,15 +119,21 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         String cvsData = ExcelUtils.getExcelFileName(multipartFile);
         // 发送给 AI 分析数据
         ChartGenResult chartGenResult = ChartDataUtil.getGenResult(aiManager, goal, cvsData, chartType);
+        Result result = saveChart(chartGenController, chartGenResult, cvsData);
+        return new BiResponse(result.charId, result.genChart, result.genResult);
+    }
+
+    @NotNull
+    private Result saveChart(ChartGenController chartGenController, ChartGenResult chartGenResult, String cvsData) {
         String genChart = chartGenResult.getGenChart();
         String genResult = chartGenResult.getGenResult();
-        Chart chart = new Chart(chartGenController.getChartName(), goal, chartType, genChart, genResult, chartGenController.getLoginUserId());
+        Chart chart = Chart.successChart(genChart, genResult, chartGenController.getChartName(), chartGenController.getLoginUserId());
         boolean saveResult = this.save(chart);
-        Long charId = chart.getId();
-        // 创建表、保存数据
-        saveCVSData(cvsData, charId);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
-        return new BiResponse(charId, genChart, genResult);
+        // 创建表、保存数据
+        Long chartId = chart.getId();
+        saveCVSData(cvsData, chartId);
+        return new Result(genChart, genResult, chartId);
     }
 
     @Override
@@ -151,10 +156,6 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
 
     /**
      * 向 RabbitMQ 发送消息
-     *
-     * @param multipartFile
-     * @param chartGenController
-     * @return
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -177,11 +178,6 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
 
     /**
      * 并发保存任务到数据库
-     *
-     * @param goal
-     * @param chartType
-     * @param cvsData
-     * @param beforeGenChart
      */
     public void asyncProcessChartData(final String goal, final String chartType, final String cvsData, final Chart beforeGenChart) {
         CompletableFuture.runAsync(() -> {
@@ -216,7 +212,11 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         queryWrapper.le(updateTime != null, "creatTime", createTime);
         Page<Chart> pageData = this.page(new Page<>(chartQueryController.getCurrent(), chartQueryController.getPageSize()), queryWrapper);
         ThrowUtils.throwIf(pageData == null, ErrorCode.SYSTEM_ERROR);
-        pageData.getRecords().forEach(chart -> chart.setChartData(ChartDataUtil.changeDataToCSV(chartMapper.queryChartData(chart.getId()))));
+        List<Chart> sortedRecords = pageData.getRecords().stream()
+                .sorted(Comparator.comparing(Chart::getUpdateTime).reversed())
+                .collect(Collectors.toList());
+        sortedRecords.forEach(chart -> chart.setChartData(ChartDataUtil.changeDataToCSV(chartMapper.queryChartData(chart.getId()))));
+        pageData.setRecords(sortedRecords);
         return pageData;
     }
 
@@ -305,6 +305,18 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
      */
     private List<Map<String, Object>> queryChartData(final Long chartId) {
         return chartMapper.queryChartData(chartId);
+    }
+
+    private static class Result {
+        public final String genChart;
+        public final String genResult;
+        public final Long charId;
+
+        public Result(String genChart, String genResult, Long charId) {
+            this.genChart = genChart;
+            this.genResult = genResult;
+            this.charId = charId;
+        }
     }
 }
 
