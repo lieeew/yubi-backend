@@ -17,6 +17,7 @@ import java.util.Date;
 @TableName(value ="user")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
@@ -78,5 +79,13 @@ public class User implements Serializable {
         this.id = userId;
         this.userName = userName;
         this.userAvatar = userAvatar;
+    }
+
+    public static User newUser(String userAccount, String userPassword) {
+        return User.builder()
+                .userAvatar("https://yupi.icu/logo.png")
+                .userAccount(userAccount)
+                .userPassword(userPassword)
+                .build();
     }
 }

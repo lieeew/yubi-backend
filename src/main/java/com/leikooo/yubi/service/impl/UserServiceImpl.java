@@ -66,7 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
             // 3. 插入数据
-            User user = new User(userAccount, DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
+            User user = User.newUser(userAccount, DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes()));
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
