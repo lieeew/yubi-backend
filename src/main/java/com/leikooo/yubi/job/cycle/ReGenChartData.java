@@ -6,6 +6,7 @@ import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
 import com.leikooo.yubi.model.dto.chart.ChartGenResult;
 import com.leikooo.yubi.model.entity.Chart;
+import com.leikooo.yubi.model.enums.ResultEnum;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.utils.ChartDataUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +38,7 @@ public class ReGenChartData {
     @Scheduled(cron = "0 0/5 * * * ?") // Every 5 minutes
     public void doUpdateFailedChart() {
         QueryWrapper<Chart> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status", ChartConstant.CHART_STATUS_FAILED);
+        queryWrapper.eq("status", ResultEnum.FAILED.getDes());
         List<Chart> failedCharts = chartMapper.selectList(queryWrapper);
         failedCharts.forEach(this::updateFailedChartAsync);
     }
@@ -53,9 +54,9 @@ public class ReGenChartData {
         String cvsData = ChartDataUtil.changeDataToCSV(chartOriginalData);
         ChartGenResult result = ChartDataUtil.getGenResult(aiManager, chart.getGoal(), cvsData, chart.getChartType());
         try {
-            chartService.updateById(new Chart(chartId, result.getGenChart(), result.getGenResult(), ChartConstant.CHART_STATUS_SUCCEED, ""));
+            chartService.updateById(new Chart(chartId, result.getGenChart(), result.getGenResult(), ResultEnum.SUCCEED.getDes(), ""));
         } catch (Exception e) {
-            chartService.updateById(new Chart(chartId, ChartConstant.CHART_STATUS_FAILED, e.getMessage()));
+            chartService.updateById(new Chart(chartId, ResultEnum.FAILED.getDes(), e.getMessage()));
             log.error("更新图表数据失败，chartId:{}, error:{}", chartId, e.getMessage());
         }
     }
