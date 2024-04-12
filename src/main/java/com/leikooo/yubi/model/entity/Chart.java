@@ -3,10 +3,12 @@ package com.leikooo.yubi.model.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.exception.ThrowUtils;
+import com.leikooo.yubi.model.enums.ResultEnum;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.units.qual.A;
 
+import javax.xml.transform.Result;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -65,6 +67,7 @@ public class Chart implements Serializable {
     private Long userId;
 
     /**
+     * @see com.leikooo.yubi.model.enums.ResultEnum
      * wait,running,succeed,failed
      */
     private String status;
@@ -147,6 +150,7 @@ public class Chart implements Serializable {
                 .chartName(chartName)
                 .genChart(genChart)
                 .genResult(genResult)
+                .status(ResultEnum.SUCCEED.getDes())
                 .build();
     }
 }

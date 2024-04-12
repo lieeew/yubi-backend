@@ -10,6 +10,7 @@ import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.mapper.ChartMapper;
 import com.leikooo.yubi.model.dto.chart.ChartGenResult;
 import com.leikooo.yubi.model.entity.Chart;
+import com.leikooo.yubi.model.enums.ResultEnum;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.utils.ChartDataUtil;
 import com.rabbitmq.client.Channel;
@@ -65,11 +66,11 @@ public class BIMessageConsumer {
         int userTaskCount = (int) getRunningTaskCount(userId);
         try {
             if (userTaskCount <= BIMQConstant.MAX_CONCURRENT_CHARTS) {
-                chartService.updateById(new Chart(Long.parseLong(message), ChartConstant.CHART_STATUS_RUNNING, ""));
+                chartService.updateById(new Chart(Long.parseLong(message), ResultEnum.RUNNING.getDes(), ""));
                 String csvData = ChartDataUtil.changeDataToCSV(chartMapper.queryChartData(Long.parseLong(message)));
                 ThrowUtils.throwIf(StringUtils.isBlank(csvData), ErrorCode.PARAMS_ERROR);
                 ChartGenResult genResult = ChartDataUtil.getGenResult(aiManager, chart.getGoal(), csvData, chart.getChartType());
-                boolean result = chartService.updateById(new Chart(chart.getId(), genResult.getGenChart(), genResult.getGenResult(), ChartConstant.CHART_STATUS_SUCCEED, ""));
+                boolean result = chartService.updateById(new Chart(chart.getId(), genResult.getGenChart(), genResult.getGenResult(), ResultEnum.SUCCEED.getDes(), ""));
                 if (!result) {
                     throwExceptionAndNackMessage(channel, deliveryTag);
                 }
@@ -104,7 +105,7 @@ public class BIMessageConsumer {
         if (chart == null) {
             throwExceptionAndNackMessage(channel, deliveryTag);
         }
-        chartService.updateById(new Chart(Long.parseLong(message), ChartConstant.CHART_STATUS_FAILED, ""));
+        chartService.updateById(new Chart(Long.parseLong(message), ResultEnum.FAILED.getDes(), ""));
         try {
             channel.basicAck(deliveryTag, false);
         } catch (IOException e) {
@@ -135,7 +136,7 @@ public class BIMessageConsumer {
      */
     private long getRunningTaskCount(Long userId) {
         QueryWrapper<Chart> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userId", userId).eq("status", ChartConstant.CHART_STATUS_RUNNING);
+        queryWrapper.eq("userId", userId).eq("status", ResultEnum.RUNNING.getDes());
         return chartService.count(queryWrapper);
     }
 }

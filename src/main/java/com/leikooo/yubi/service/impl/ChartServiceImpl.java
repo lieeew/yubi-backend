@@ -16,6 +16,7 @@ import com.leikooo.yubi.model.dto.controller.ChartGenController;
 import com.leikooo.yubi.model.dto.controller.ChartQueryController;
 import com.leikooo.yubi.model.dto.controller.ChartRetryController;
 import com.leikooo.yubi.model.entity.Chart;
+import com.leikooo.yubi.model.enums.ResultEnum;
 import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
@@ -24,6 +25,7 @@ import com.leikooo.yubi.utils.ExcelUtils;
 import com.opencsv.CSVWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,7 +147,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         // 分析 xlsx 文件
         String cvsData = ExcelUtils.getExcelFileName(multipartFile);
         // 首先保存到数据库之中
-        Chart beforeGenChart = new Chart(chartGenController.getGoal(), chartGenController.getChartType(), chartGenController.getLoginUserId(), ChartConstant.CHART_STATUS_WAIT);
+        Chart beforeGenChart = new Chart(chartGenController.getGoal(), chartGenController.getChartType(), chartGenController.getLoginUserId(), ResultEnum.WAIT.getDes());
         boolean beforeSavedResult = this.save(beforeGenChart);
         ThrowUtils.throwIf(!beforeSavedResult, ErrorCode.SYSTEM_ERROR);
         asyncProcessChartData(goal, chartType, cvsData, beforeGenChart);
@@ -170,7 +172,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
         Long chartId = chart.getId();
         saveCVSData(cvsData, chartId);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
-        this.updateById(new Chart(chartId, ChartConstant.CHART_STATUS_WAIT, ""));
+        this.updateById(new Chart(chartId, ResultEnum.WAIT.getDes(), ""));
         biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
         return new BiResponse(chartId);
     }
@@ -182,13 +184,13 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     public void asyncProcessChartData(final String goal, final String chartType, final String cvsData, final Chart beforeGenChart) {
         CompletableFuture.runAsync(() -> {
             Long chartId = beforeGenChart.getId();
-            this.updateById(new Chart(beforeGenChart.getId(), ChartConstant.CHART_STATUS_RUNNING, ""));
+            this.updateById(new Chart(beforeGenChart.getId(), ResultEnum.RUNNING.getDes(), ""));
             try {
                 ChartGenResult result = ChartDataUtil.getGenResult(aiManager, goal, cvsData, chartType);
-                Chart afterGenChart = new Chart(chartId, result.getGenChart(), result.getGenResult(), ChartConstant.CHART_STATUS_SUCCEED, "");
+                Chart afterGenChart = new Chart(chartId, result.getGenChart(), result.getGenResult(), ResultEnum.SUCCEED.getDes(), "");
                 this.updateById(afterGenChart);
             } catch (Exception e) {
-                Chart chart = new Chart(chartId, ChartConstant.CHART_STATUS_FAILED, e.getMessage());
+                Chart chart = new Chart(chartId, ResultEnum.FAILED.getDes(), ExceptionUtils.getStackTrace(e));
                 this.updateById(chart);
             }
         }, threadPoolExecutor);
@@ -230,7 +232,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     public BiResponse retryGenChart(ChartRetryController chartRetryController) {
         ThrowUtils.throwIf(chartRetryController == null, ErrorCode.PARAMS_ERROR);
         Long chartId = chartRetryController.getChartId();
-        this.updateById(new Chart(ChartConstant.CHART_STATUS_WAIT, "", "", "", chartId));
+        this.updateById(new Chart(ResultEnum.WAIT.getDes(), "", "", "", chartId));
         biMessageProducer.sendMessage(BIMQConstant.BI_EXCHANGE_NAME, BIMQConstant.BI_ROUTING_KEY, String.valueOf(chartId));
         return new BiResponse(chartId);
     }

@@ -54,6 +54,7 @@ public class ChartVO implements Serializable {
     private Long userId;
 
     /**
+     * @see com.leikooo.yubi.model.enums.ResultEnum
      * wait,running,succeed,failed
      */
     private String status;
