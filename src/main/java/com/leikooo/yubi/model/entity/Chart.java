@@ -143,14 +143,4 @@ public class Chart implements Serializable {
         this.chartType = chartType;
         this.userId = userId;
     }
-
-    public static Chart successChart(String genChart, String genResult, String chartName, Long userId) {
-        return Chart.builder()
-                .userId(userId)
-                .chartName(chartName)
-                .genChart(genChart)
-                .genResult(genResult)
-                .status(ResultEnum.SUCCEED.getDes())
-                .build();
-    }
 }

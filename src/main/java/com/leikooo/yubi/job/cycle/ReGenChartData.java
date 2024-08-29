@@ -21,7 +21,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author <a href="https://github.com/lieeew">leikooo</a>
- * @Description 向每隔 5分钟 执行一个在数据库中捞取数据的操作
+ * @description 向每隔 5分钟 执行一个在数据库中捞取数据的操作
  */
 @Component
 @Slf4j

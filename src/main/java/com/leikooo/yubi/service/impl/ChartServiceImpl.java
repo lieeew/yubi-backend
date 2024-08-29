@@ -129,13 +129,26 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart>
     private Result saveChart(ChartGenController chartGenController, ChartGenResult chartGenResult, String cvsData) {
         String genChart = chartGenResult.getGenChart();
         String genResult = chartGenResult.getGenResult();
-        Chart chart = Chart.successChart(genChart, genResult, chartGenController.getChartName(), chartGenController.getLoginUserId());
+        Chart chart = successChart(chartGenController, chartGenResult);
         boolean saveResult = this.save(chart);
         ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "保存图表信息失败");
         // 创建表、保存数据
         Long chartId = chart.getId();
         saveCVSData(cvsData, chartId);
         return new Result(genChart, genResult, chartId);
+    }
+
+    private Chart successChart(ChartGenController chartGenController, ChartGenResult chartGenResult) {
+        return Chart.builder()
+                .status(ResultEnum.SUCCEED.getDes())
+                .userId(chartGenController.getLoginUserId())
+                .genResult(chartGenResult.getGenResult())
+                .chartName(chartGenController.getChartName())
+                .genChart(chartGenResult.getGenChart())
+                .chartType(chartGenController.getChartType())
+                .goal(chartGenController.getGoal())
+                .build();
+
     }
 
     @Override

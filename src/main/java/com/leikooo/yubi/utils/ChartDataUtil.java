@@ -1,5 +1,6 @@
 package com.leikooo.yubi.utils;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.leikooo.yubi.common.ErrorCode;
 import com.leikooo.yubi.exception.BusinessException;
@@ -7,6 +8,7 @@ import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.model.dto.chart.ChartGenResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.ListUtils;
 import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class ChartDataUtil {
 
     public static String changeDataToCSV(List<Map<String, Object>> chartOriginalData) {
+        ThrowUtils.throwIf(chartOriginalData.size() == 0, ErrorCode.NOT_FOUND_ERROR);
         List<Set<String>> columnSets = chartOriginalData.stream()
                 .map(Map::keySet)
                 .collect(Collectors.toList());
