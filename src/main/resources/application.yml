@@ -95,10 +95,10 @@ cos:
     region: xxx
     bucket: xxx
 ## 阿里云百炼
-bailian:
-  agentKey: ${bailian.agentKey}
-  accessKeySecret: ${bailian.accessKeySecret}
-  accessKeyId: ${bailian.accessKeyId}
+#bailian:
+#  agentKey: ${bailian.agentKey}
+#  accessKeySecret: ${bailian.accessKeySecret}
+#  accessKeyId: ${bailian.accessKeyId}
 ## 讯飞 AI 配置
 xunfei:
   client:
