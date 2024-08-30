@@ -23,8 +23,8 @@ import java.util.List;
 @Component
 @Slf4j
 public class AIManager {
-    @Resource
-    private AccessTokenClient accessTokenClient;
+//    @Resource
+//    private AccessTokenClient accessTokenClient;
 
     @Resource
     private SparkClient sparkClient;
@@ -54,17 +54,18 @@ public class AIManager {
      * @return
      */
     public String sendMesToAI(final String content) {
-        String token = accessTokenClient.getToken();
-        BaiLianConfig config = new BaiLianConfig()
-                .setApiKey(token);
-        String appId = "2e9ff82a22d445bfb78b73effe8fa4cf";
-        CompletionsRequest request = new CompletionsRequest()
-                .setAppId(appId)
-                .setPrompt(content);
-
-        ApplicationClient client = new ApplicationClient(config);
-        CompletionsResponse response = client.completions(request);
-        return response.getData().getText();
+//        String token = accessTokenClient.getToken();
+//        BaiLianConfig config = new BaiLianConfig()
+//                .setApiKey(token);
+//        String appId = "2e9ff82a22d445bfb78b73effe8fa4cf";
+//        CompletionsRequest request = new CompletionsRequest()
+//                .setAppId(appId)
+//                .setPrompt(content);
+//
+//        ApplicationClient client = new ApplicationClient(config);
+//        CompletionsResponse response = client.completions(request);
+//        return response.getData().getText();
+        return "";
     }
 
     /**
