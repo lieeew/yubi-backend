@@ -20,8 +20,12 @@ jobs:
           pwd
           ls -a
           mvn -B package --file pom.xml
-
-
+      # 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: target/yubi-backend-0.0.1-SNAPSHOT.jar
   deploy:
     name: Deploy
     needs: [build]
@@ -40,8 +44,7 @@ jobs:
         run: |
           ls -a
           pwd
-          cd target
-          ls -a
-      #- name: push Image to Docker hub
-        # run: docker push leikooo/yubi:last
-        # docker build -t yubi-backend:latest .
+          docker build -t yubi-backend:latest .
+      - name: push Image to Docker hub
+        run: docker push leikooo/yubi:last
+        
