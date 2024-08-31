@@ -44,10 +44,10 @@ spring:
 server:
   address: 0.0.0.0
   port: 8081
-  ssl:
-    key-store: classpath:bi-backend.leikooo.cn.jks
-    key-store-type: JKS
-    key-store-password: ${ssl.key-password}
+#  ssl:
+#    key-store: classpath:bi-backend.leikooo.cn.jks
+#    key-store-type: JKS
+#    key-store-password: ${ssl.key-password}
   servlet:
     context-path: /api
     # cookie 30 天过期
@@ -56,7 +56,7 @@ server:
         max-age: 2592000
         same-site: none
         secure: true
-        domain: leikooo.cn
+        domain: leikooo.icu
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -95,17 +95,13 @@ cos:
     region: xxx
     bucket: xxx
 ## 阿里云百炼
-#bailian:
-#  agentKey: ${bailian.agentKey}
-#  accessKeySecret: ${bailian.accessKeySecret}
-#  accessKeyId: ${bailian.accessKeyId}
+bai-lian:
+  agentKey: ${bai-lian.agentKey}
+  accessKeySecret: ${bai-lian.accessKeySecret}
+  accessKeyId: ${bai-lian.accessKeyId}
 ## 讯飞 AI 配置
-xunfei:
+xun-fei:
   client:
-    appid: ${xunfei.appid}
-    apiSecret: ${xunfei.apiSecret}
-    apiKey: ${xunfei.apiKey}
-yuapi:
-  client:
-    access-key: ${yuapi.client.access-key}
-    secret-key: ${yuapi.client.secret-key}
+    appId: ${xun-fei.client.appId}
+    apiSecret: ${xun-fei.client.apiSecret}
+    apiKey: ${xun-fei.client.apiKey}

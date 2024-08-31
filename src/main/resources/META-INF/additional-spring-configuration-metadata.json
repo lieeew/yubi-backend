@@ -29,6 +29,30 @@
       "name": "wx.open.appSecret",
       "type": "java.lang.String",
       "description": "Description for wx.open.appSecret."
+    },
+    {
+      "name": "bai-lian.agentKey",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "bai-lian.accessKeySecret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "bai-lian.accessKeyId",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "xun-fei.client.appId",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "xun-fei.client.apiSecret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "xun-fei.client.apiKey",
+      "type": "java.lang.String"
     }
   ]
 }

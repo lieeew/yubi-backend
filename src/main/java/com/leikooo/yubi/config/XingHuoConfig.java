@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
  * @Description
  */
 @Configuration
-@ConfigurationProperties(prefix = "xunfei.client")
+@ConfigurationProperties(prefix = "xun-fei.client")
 @Data
 public class XingHuoConfig {
-    private String appid;
+    private String appId;
     private String apiSecret;
     private String apiKey;
 
@@ -23,7 +23,7 @@ public class XingHuoConfig {
         SparkClient sparkClient = new SparkClient();
         sparkClient.apiKey = apiKey;
         sparkClient.apiSecret = apiSecret;
-        sparkClient.appid = appid;
+        sparkClient.appid = appId;
         return sparkClient;
     }
 }
