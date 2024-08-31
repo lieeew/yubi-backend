@@ -40,6 +40,8 @@ jobs:
         run: |
           ls -a
           pwd
-          docker build -t yubi-backend:latest .
+          cd target
+          ls -a
+          # docker build -t yubi-backend:latest .
       - name: push Image to Docker hub
-        run: docker push leikooo/yubi:last
+        # run: docker push leikooo/yubi:last
