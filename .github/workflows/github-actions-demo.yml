@@ -15,7 +15,7 @@ jobs:
         run: |
           pwd
           ls -a
-          find / -name "pom.xml"
+          find /home/runner/work -name "pom.xml"
           # mvn -B package --file pom.xml
           #cd target
           #ls -a
