@@ -51,5 +51,5 @@ jobs:
           pwd
           docker build -t yubi-backend:latest .
       - name: push Image to Docker hub
-        run: docker push leikooo/yubi:last
+        run: docker push yubi-backend:last
         
