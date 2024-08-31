@@ -15,10 +15,12 @@ jobs:
         run: |
           pwd
           ls -a
-          find /home/runner/work -name "pom.xml"
           # mvn -B package --file pom.xml
           #cd target
           #ls -a
+      - name: find pom.xml
+        run: find /home/runner/work/yubi-backend -name "pom.xml"
+
 
   deploy:
     name: Deploy
@@ -33,7 +35,7 @@ jobs:
           # Username used to log against the Docker registry
           username: ${{ secrets.DOCKER_USERNAME }}
           # Password or personal access token used to log against the Docker registry
-          password: ${{ secrets.DOCKER_PASSWORD}}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build docker image
         run: |
           ls -a
