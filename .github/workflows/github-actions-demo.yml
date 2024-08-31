@@ -12,7 +12,9 @@ jobs:
         with:
           java-version: 17
       - name: Decrypt configuration file
-        run: openssl aes-256-cbc -d -in application-dev.properties.enc -out application-dev.properties -k ${{ secrets.CONFIG_PASSWORD }}
+        run: |
+          cd src/main/resources
+          openssl aes-256-cbc -d -in application-dev.properties.enc -out application-dev.properties -k ${{ secrets.CONFIG_PASSWORD }}
       - name: Build with Maven
         run: |
           pwd
