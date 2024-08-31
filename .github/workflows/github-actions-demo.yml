@@ -5,17 +5,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: check code 
+        uses: actions/checkout@v1
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: 17
       - name: Build with Maven
         run: |
-          mvn install
-          mvn package -Dmaven.test.skip
-          ls -a
           pwd
+          ls -a
+          mvn -B package --file pom.xml
+
 
   deploy:
     name: Deploy
@@ -30,7 +31,7 @@ jobs:
           # Username used to log against the Docker registry
           username: ${{ secrets.DOCKER_USERNAME }}
           # Password or personal access token used to log against the Docker registry
-          password: ${{ secrets.DOCKER_PASSWORD}}
+          password: ${{ secrets.DOCKER_PASSWORD }}
       - name: build docker image
         run: |
           ls -a
