@@ -11,6 +11,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+      - name: Decrypt configuration file
+        run: openssl aes-256-cbc -d -in application-dev.properties.enc -out application-dev.properties -k ${{ secrets.CONFIG_PASSWORD }}
       - name: Build with Maven
         run: |
           pwd
