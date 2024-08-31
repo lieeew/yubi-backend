@@ -5,8 +5,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      #- name: check code 
-      #- uses: actions/checkout@v1
+      - name: check code 
+      - uses: actions/checkout@v1
       - name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
@@ -15,11 +15,7 @@ jobs:
         run: |
           pwd
           ls -a
-          # mvn -B package --file pom.xml
-          #cd target
-          #ls -a
-      - name: find pom.xml
-        run: find /home/runner/work/yubi-backend -name "pom.xml"
+          mvn -B package --file pom.xml
 
 
   deploy:
