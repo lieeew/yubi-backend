@@ -41,15 +41,17 @@ jobs:
       - name: login docker account
         uses: docker/login-action@v3.3.0
         with:
+          registry: docker.io
           # Username used to log against the Docker registry
           username: ${{ secrets.DOCKER_USERNAME }}
           # Password or personal access token used to log against the Docker registry
           password: ${{ secrets.DOCKER_PASSWORD }}
+          
       - name: build docker image
         run: |
           ls -a
           pwd
-          docker build -t yubi-backend:latest .
+          docker build -t leikooo/leikoobi-backend:latest .
       - name: push Image to Docker hub
-        run: docker push yubi-backend:latest
+        run: docker push leikooo/leikoobi-backend:latest
         
