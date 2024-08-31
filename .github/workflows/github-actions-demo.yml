@@ -22,7 +22,7 @@ jobs:
           mvn -B package --file pom.xml
       # 
       - name: Upload build artifact
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/upload-artifact@v3.2.0-node20
         with:
           name: build-artifact
           path: target/yubi-backend-0.0.1-SNAPSHOT.jar
@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Download build artifact
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v3.2.0-node20
         with:
           name: build-artifact
           path: ./target/
