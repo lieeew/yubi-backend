@@ -22,7 +22,7 @@ jobs:
           mvn -B package --file pom.xml
       # 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: build-artifact
           path: target/yubi-backend-0.0.1-SNAPSHOT.jar
@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: build-artifact
           path: ./target/
@@ -51,5 +51,5 @@ jobs:
           pwd
           docker build -t yubi-backend:latest .
       - name: push Image to Docker hub
-        run: docker push yubi-backend:last
+        run: docker push yubi-backend:latest
         
