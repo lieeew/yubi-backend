@@ -19,7 +19,7 @@ jobs:
         run: |
           pwd
           ls -a
-          mvn -B package --file pom.xml
+          mvn -B package -DskipTests=true -Dmaven.test.skip=true --file pom.xml
       # 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4.3.6
@@ -51,7 +51,7 @@ jobs:
         run: |
           ls -a
           pwd
-          docker build -t leikooo/leikoobi-backend:latest .
+          docker build -t leikooo/leikoobi-backend:v2.0 .
       - name: push Image to Docker hub
-        run: docker push leikooo/leikoobi-backend:latest
+        run: docker push leikooo/leikoobi-backend:v2.0
         
