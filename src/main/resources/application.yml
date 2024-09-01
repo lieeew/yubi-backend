@@ -44,10 +44,10 @@ spring:
 server:
   address: 0.0.0.0
   port: 8081
-#  ssl:
-#    key-store: classpath:bi-backend.leikooo.cn.jks
-#    key-store-type: JKS
-#    key-store-password: ${ssl.key-password}
+  ssl:
+    key-store: classpath:api.leikooo.icu.jks
+    key-store-type: JKS
+    key-store-password: ${ssl.key-password}
   servlet:
     context-path: /api
     # cookie 30 天过期
