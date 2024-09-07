@@ -56,7 +56,7 @@ server:
         max-age: 2592000
         # same-site: none
         # secure: true
-        # domain: leikooo.icu
+        domain: 1.117.228.86
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
