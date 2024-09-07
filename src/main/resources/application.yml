@@ -54,9 +54,9 @@ server:
     session:
       cookie:
         max-age: 2592000
-        same-site: none
-        secure: true
-        #domain: leikooo.icu
+        # same-site: none
+        # secure: true
+        # domain: leikooo.icu
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
