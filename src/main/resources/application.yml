@@ -54,7 +54,7 @@ server:
     session:
       cookie:
         max-age: 2592000
-        same-site: none
+        #same-site: none
         #secure: true
         #domain: leikooo.icu
 mybatis-plus:
