@@ -65,4 +65,4 @@ jobs:
           envs: DOCKER_VERSION
           script: |
             docker pull leikooo/leikoobi-backend:$DOCKER_VERSION
-            docker -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
+            docker run -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
