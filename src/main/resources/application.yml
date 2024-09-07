@@ -56,7 +56,7 @@ server:
         max-age: 2592000
         # same-site: none
         # secure: true
-        domain: 1.117.228.86
+        # domain: 
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
