@@ -62,6 +62,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          envs: DOCKER_VERSION
           script: |
             docker pull leikooo/leikoobi-backend:$DOCKER_VERSION
             docker -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
