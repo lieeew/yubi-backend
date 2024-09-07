@@ -1,6 +1,8 @@
 name: Docker Actions
 run-name: ${{ github.actor }} is use GitHub Actions 🚀
 on: [push]
+env:
+  DOCKER_VERSION: ${{ secrets.DOCKER_VERSION }}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -51,7 +53,15 @@ jobs:
         run: |
           ls -a
           pwd
-          docker build -t leikooo/leikoobi-backend:v3.0 .
+          docker build -t leikooo/leikoobi-backend:$DOCKER_VERSION .
       - name: push Image to Docker hub
-        run: docker push leikooo/leikoobi-backend:v3.0
-        
+        run: docker push leikooo/leikoobi-backend:$DOCKER_VERSION
+      - name: login service pull docker image and run
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            docker pull leikooo/leikoobi-backend:$DOCKER_VERSION
+            docker -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
