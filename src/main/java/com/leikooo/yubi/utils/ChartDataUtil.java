@@ -1,16 +1,13 @@
 package com.leikooo.yubi.utils;
 
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.leikooo.yubi.common.ErrorCode;
-import com.leikooo.yubi.exception.BusinessException;
 import com.leikooo.yubi.exception.ThrowUtils;
 import com.leikooo.yubi.manager.AIManager;
 import com.leikooo.yubi.model.dto.chart.ChartGenResult;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.ListUtils;
 import org.springframework.stereotype.Component;
-import javax.annotation.Resource;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,15 +58,16 @@ public class ChartDataUtil {
 
     /**
      * 获取 AI 生成结果
-     * @param aiManager  AI 能力
+     *
+     * @param aiManager AI 能力
      * @param goal
      * @param cvsData
      * @param chartType
      * @return
      */
     public static ChartGenResult getGenResult(final AIManager aiManager, final String goal, final String cvsData, final String chartType) {
-        String promote = AIManager.PRECONDITION + "分析需求 " + goal + " \n原始数据如下: " + cvsData + "\n生成图标的类型是: " + chartType;
-        String resultData = aiManager.sendMesToAIUseXingHuo(promote);
+        String promote = "分析需求 " + goal + " \n原始数据如下: " + cvsData + "\n生成图标的类型是: " + chartType;
+        String resultData = aiManager.sendMsgToXingHuo(true, promote);
         log.info("AI 生成的信息: {}", resultData);
         ThrowUtils.throwIf(resultData.split("'【【【【【'").length < 3, ErrorCode.SYSTEM_ERROR);
         String genChart = resultData.split("'【【【【【'")[1].trim();

@@ -1,0 +1,18 @@
+version: '3'
+services:
+  nacos:
+    image: nacos/nacos-server:v2.4.2
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9555:9555"
+    volumes:
+      - ./docker/application.properties:/home/nacos/conf/application.properties
+    environment:
+      - NACOS_SERVERS=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=1.117.228.86
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_USER=nacos
+      - MYSQL_SERVICE_PASSWORD=nacos

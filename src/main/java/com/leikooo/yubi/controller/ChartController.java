@@ -22,7 +22,6 @@ import com.leikooo.yubi.model.vo.BiResponse;
 import com.leikooo.yubi.model.vo.ChartVO;
 import com.leikooo.yubi.service.ChartService;
 import com.leikooo.yubi.service.UserService;
-import com.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.InputStreamResource;
@@ -37,12 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.sql.*;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * 用户接口

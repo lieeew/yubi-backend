@@ -12,6 +12,9 @@ import io.github.briqt.spark4j.model.SparkSyncChatResponse;
 import io.github.briqt.spark4j.model.request.SparkRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,24 +32,8 @@ public class AIManager {
     @Resource
     private SparkClient sparkClient;
 
-    /**
-     * AI 生成问题的预设条件
-     */
-    public static final String PRECONDITION = "你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
-            "分析需求：\n" +
-            "{数据分析的需求或者目标}\n" +
-            "原始数据：\n" +
-            "{csv格式的原始数据，用,作为分隔符}\n" +
-            "请根据这两部分内容，严格按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）同时不要使用这个符号 '】'\n" +
-            "'【【【【【'\n" +
-            "{前端 Echarts V5 的 option 配置对象 JSON 代码, 不要生成任何多余的内容，比如注释和代码块标记}\n" +
-            "'【【【【【'\n" +
-            "{明确的数据分析结论、越详细越好，不要生成多余的注释} \n"
-            + "下面是一个具体的例子的模板："
-            + "'【【【【【'\n"
-            + "{\"xxx\": }"
-            + "'【【【【【'\n" +
-            "结论：";
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     /**
      * 向 AI 发送请求
@@ -54,25 +41,58 @@ public class AIManager {
      * @return
      */
     public String sendMesToAI(final String content) {
-        String token = accessTokenClient.getToken();
-        BaiLianConfig config = new BaiLianConfig()
-                .setApiKey(token);
-        String appId = "2e9ff82a22d445bfb78b73effe8fa4cf";
-        CompletionsRequest request = new CompletionsRequest()
-                .setAppId(appId)
-                .setPrompt(content);
+        CompletionsResponse execute = transactionTemplate.execute((simpleTransactionStatus) -> {
+            String token = accessTokenClient.getToken();
+            BaiLianConfig config = new BaiLianConfig()
+                    .setApiKey(token);
+            String appId = "2e9ff82a22d445bfb78b73effe8fa4cf";
+            CompletionsRequest request = new CompletionsRequest()
+                    .setAppId(appId)
+                    .setPrompt(content);
 
-        ApplicationClient client = new ApplicationClient(config);
-        CompletionsResponse response = client.completions(request);
-        return response.getData().getText();
+            ApplicationClient client = new ApplicationClient(config);
+            return client.completions(request);
+        });
+        return execute.getData().getText();
     }
 
     /**
      * 向 AI 发送请求
      *
-     * @return
+     * @param isNeedTemplate 是否使用模板，进行 AI 生成； true 使用 、false 不使用 ，false 的情况是只想用 AI 不只是生成前端代码
+     * @param content        内容
+     *                       分析需求：
+     *                       分析网站用户的增长情况
+     *                       原始数据：
+     *                       日期,用户数
+     *                       1号,10
+     *                       2号,20
+     *                       3号,30
+     * @return AI 返回的内容
+     * '【【【【【'
+     * <p>
+     * '【【【【【'
      */
-    public String sendMesToAIUseXingHuo(final String content) {
+    public String sendMsgToXingHuo(boolean isNeedTemplate,  String content) {
+        if (isNeedTemplate) {
+            // AI 生成问题的预设条件
+            String predefinedInformation = "你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
+                    "分析需求：\n" +
+                    "{数据分析的需求或者目标}\n" +
+                    "原始数据：\n" +
+                    "{csv格式的原始数据，用,作为分隔符}\n" +
+                    "请根据这两部分内容，严格按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）同时不要使用这个符号 '】'\n" +
+                    "'【【【【【'\n" +
+                    "{前端 Echarts V5 的 option 配置对象 JSON 代码, 不要生成任何多余的内容，比如注释和代码块标记}\n" +
+                    "'【【【【【'\n" +
+                    "{明确的数据分析结论、越详细越好，不要生成多余的注释} \n"
+                    + "下面是一个具体的例子的模板："
+                    + "'【【【【【'\n"
+                    + "{\"xxx\": }"
+                    + "'【【【【【'\n" +
+                    "结论：";
+            content = predefinedInformation + "\n" + content;
+        }
         List<SparkMessage> messages = new ArrayList<>();
         messages.add(SparkMessage.userContent(content));
         // 构造请求
