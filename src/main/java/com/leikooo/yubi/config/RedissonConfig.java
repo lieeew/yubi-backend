@@ -1,8 +1,7 @@
 package com.leikooo.yubi.config;
 
-import com.aliyun.broadscope.bailian.sdk.AccessTokenClient;
 import lombok.Data;
-import org.aopalliance.intercept.Interceptor;
+import org.apache.commons.lang3.StringUtils;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -31,7 +30,7 @@ public class RedissonConfig {
         Config config = new Config();
         config.useReplicatedServers()
                 .setDatabase(database)
-                .setPassword(password)
+                .setPassword(StringUtils.isEmpty(password) ? null : password)
                 .addNodeAddress(String.format("redis://%s:%s", host, port));
         return Redisson.create(config);
     }
