@@ -12,12 +12,12 @@ import io.github.briqt.spark4j.model.SparkSyncChatResponse;
 import io.github.briqt.spark4j.model.request.SparkRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author leikooo
@@ -33,7 +33,7 @@ public class AIManager {
     private SparkClient sparkClient;
 
     @Resource
-    private TransactionTemplate transactionTemplate;
+    private TransactionTemplate transacTionTemplate;
 
     /**
      * 向 AI 发送请求
@@ -41,7 +41,7 @@ public class AIManager {
      * @return
      */
     public String sendMesToAI(final String content) {
-        CompletionsResponse execute = transactionTemplate.execute((simpleTransactionStatus) -> {
+        CompletionsResponse execute = transacTionTemplate.execute((simpleTransactionStatus) -> {
             String token = accessTokenClient.getToken();
             BaiLianConfig config = new BaiLianConfig()
                     .setApiKey(token);
@@ -53,7 +53,7 @@ public class AIManager {
             ApplicationClient client = new ApplicationClient(config);
             return client.completions(request);
         });
-        return execute.getData().getText();
+        return Objects.requireNonNull(execute).getData().getText();
     }
 
     /**
@@ -73,7 +73,8 @@ public class AIManager {
      * <p>
      * '【【【【【'
      */
-    public String sendMsgToXingHuo(boolean isNeedTemplate,  String content) {
+    public String sendMsgToXingHuo(boolean isNeedTemplate, String content) {
+        List<SparkMessage> messages = new ArrayList<>();
         if (isNeedTemplate) {
             // AI 生成问题的预设条件
             String predefinedInformation = "你是一个数据分析师和前端开发专家，接下来我会按照以下固定格式给你提供内容：\n" +
@@ -87,13 +88,16 @@ public class AIManager {
                     "'【【【【【'\n" +
                     "{明确的数据分析结论、越详细越好，不要生成多余的注释} \n"
                     + "下面是一个具体的例子的模板："
-                    + "'【【【【【'\n"
-                    + "{\"xxx\": }"
-                    + "'【【【【【'\n" +
+                    + "'【【【【【'"
+                    + "{"
+                    + "    \"title\": {"
+                    + "        \"text\": \"分析需求\"\n"
+                    + "    }"
+                    + "}"
+                    + "'【【【【【'" +
                     "结论：";
-            content = predefinedInformation + "\n" + content;
+            messages.add(SparkMessage.systemContent(predefinedInformation));
         }
-        List<SparkMessage> messages = new ArrayList<>();
         messages.add(SparkMessage.userContent(content));
         // 构造请求
         SparkRequest sparkRequest = SparkRequest.builder()
@@ -104,7 +108,7 @@ public class AIManager {
                 // 核采样阈值。用于决定结果随机性,取值越高随机性越强即相同的问题得到的不同答案的可能性越高 非必传,取值为[0,1],默认为0.5
                 .temperature(0.2)
                 // 指定请求版本，默认使用最新2.0版本
-                .apiVersion(SparkApiVersion.V3_5)
+                .apiVersion(SparkApiVersion.V4_0)
                 .build();
         // 同步调用
         SparkSyncChatResponse chatResponse = sparkClient.chatSync(sparkRequest);
