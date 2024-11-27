@@ -65,5 +65,22 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           envs: DOCKER_VERSION
           script: |
+            # 检查 9090 端口是否被占用
+            if lsof -i:9090; then
+              echo "Port 9090 is in use. Killing the process."
+              # 获取占用端口的进程ID并终止它
+              kill -9 $(lsof -ti:9090)
+            fi
+      
+            # 拉取最新的 Docker 镜像
             docker pull leikooo/leikoobi-backend:$DOCKER_VERSION
-            docker run -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
+      
+            # 检查是否有已经运行的同名容器
+            if docker ps -a --filter "name=leikoobi-backend" --format "{{.ID}}"; then
+              echo "Stopping and removing existing container."
+              docker stop leikoobi-backend || true
+              docker rm leikoobi-backend || true
+            fi
+      
+            # 运行新的容器
+            docker run --name leikoobi-backend -p 9090:9090 -d leikooo/leikoobi-backend:$DOCKER_VERSION
