@@ -1,7 +1,6 @@
 ## BI 项目后端
 
 
-prmote 
 
 优化后的 promote
 ```
